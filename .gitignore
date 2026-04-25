@@ -1,0 +1,18 @@
+# Maven build output
+backend/target/
+backend/effective-pom.xml
+
+# H2 runtime database files
+backend/data/
+
+# Node.js / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
