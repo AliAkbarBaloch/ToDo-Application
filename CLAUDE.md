@@ -1,107 +1,117 @@
-# CLAUDE.md — Architecture & Development Constraints
+# CLAUDE.md
 
-This file defines the architecture, technology stack, and coding conventions for the
-ToDo application. All LLM-generated code **must** follow these constraints.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ---
 
-## Technology Stack
+## Build, Run & Test Commands
 
-| Layer      | Technology                          |
-|------------|-------------------------------------|
-| Backend    | Java 17, Spring Boot 3.x (Maven)    |
-| Database   | H2 (file-based, embedded)           |
-| ORM        | Spring Data JPA / Hibernate         |
-| Frontend   | React 18 + Vite                     |
-| API        | RESTful JSON over HTTP              |
+All backend commands must be run from the `backend/` directory. All frontend commands from `frontend/`.
+
+### Backend (Spring Boot / Maven)
+
+```bash
+cd backend
+mvn compile                  # compile only
+mvn test                     # run all tests (1 context-load test currently)
+mvn test -Dtest=ClassName    # run a single test class
+mvn spring-boot:run          # start the server on http://localhost:8080
+```
+
+### Frontend (React / Vite)
+
+```bash
+cd frontend
+npm install                  # install dependencies (first time only)
+npm run dev                  # start dev server on http://localhost:5173
+npm run build                # production build to dist/
+```
+
+### Running the full stack
+
+Start backend first, then frontend. The Vite dev server proxies all `/api/*` requests to `http://localhost:8080`, so no CORS configuration is needed during development.
+
+The H2 console is available at `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:file:./data/tododb`).
 
 ---
 
 ## Architecture: MVC + Repository Pattern
 
-The backend follows the **Model-View-Controller (MVC)** pattern combined with the
-**Repository Pattern** for data access:
-
 ```
-Request → Controller → Service → Repository → Database
-                ↓
-            Response (JSON)
-```
-
-### Layers
-
-- **Model** (`model/`): JPA entities — pure data classes, no business logic.
-- **Repository** (`repository/`): Spring Data JPA interfaces — database access only.
-- **Service** (`service/`): Business logic — validation, transformation, rules.
-- **Controller** (`controller/`): REST endpoints — HTTP handling only, delegates to Service.
-
-### Package Structure
-
-```
-com.todoapp
-├── model/          ← JPA entities (Todo.java)
-├── repository/     ← Spring Data JPA interfaces (TodoRepository.java)
-├── service/        ← Business logic (TodoService.java)
-├── controller/     ← REST controllers (TodoController.java)
-└── dto/            ← Request/Response DTOs (TodoRequest.java, TodoResponse.java)
+Browser (React/Vite :5173)
+        │  fetch /api/*
+        ▼
+TodoController  →  TodoService  →  TodoRepository  →  H2 (file: backend/data/tododb.mv.db)
+        │                 │
+   GlobalExceptionHandler  │
+   (400 / 404 responses)  DTO mapping (TodoRequest → Todo entity → TodoResponse)
 ```
 
----
+### Backend layers (all under `backend/src/main/java/com/todoapp/`)
 
-## API Design: RESTful Conventions
+| Layer | File | Rule |
+|---|---|---|
+| Controller | `controller/TodoController.java` | HTTP only — no business logic |
+| Exception handler | `controller/GlobalExceptionHandler.java` | Converts `MethodArgumentNotValidException` → 400, `EntityNotFoundException` → 404 |
+| Service | `service/TodoService.java` | All business logic lives here, including priority sort |
+| Repository | `repository/TodoRepository.java` | Spring Data JPA — no logic, only query methods |
+| Entity | `model/Todo.java` | JPA entity; `@PrePersist`/`@PreUpdate` set timestamps |
+| DTOs | `dto/TodoRequest.java`, `dto/TodoResponse.java` | Never expose the entity directly in API responses |
 
-- Base path: `/api/todos`
-- All responses: `application/json`
-- Stateless requests — no server-side session state
-- Resources identified by URLs; actions expressed via HTTP verbs
+### Frontend (`frontend/src/`)
 
-| Method | URL                     | Action                        | Success Code |
-|--------|-------------------------|-------------------------------|--------------|
-| GET    | `/api/todos`            | Return all todos              | 200          |
-| GET    | `/api/todos/{id}`       | Return single todo            | 200          |
-| POST   | `/api/todos`            | Create new todo               | 201          |
-| PUT    | `/api/todos/{id}`       | Update existing todo          | 200          |
-| PATCH  | `/api/todos/{id}/status`| Toggle completed/active       | 200          |
-| DELETE | `/api/todos/{id}`       | Delete todo                   | 204          |
+All API state lives in `App.jsx`. Child components receive data and callbacks as props — they own no server state.
 
-Query parameters: `?status=active|completed`, `?search=keyword`
-
-Standard HTTP error codes: `400` (validation), `404` (not found), `409` (conflict)
-
----
-
-## Database: H2 (File-Based)
-
-- Use **file-based** H2 (not in-memory) so data survives server restarts.
-- JPA DDL: `spring.jpa.hibernate.ddl-auto=update`
-- H2 console enabled for development at `/h2-console`
+| Component | Responsibility |
+|---|---|
+| `App.jsx` | Fetches todos; holds `todos`, `filter`, `search`, `editingId` state; all API call handlers |
+| `components/AddTodoForm.jsx` | Create form; calls `onSubmit(data)` prop |
+| `components/EditTodoForm.jsx` | Inline edit form pre-filled from `todo` prop; calls `onSave(data)` / `onCancel()` |
+| `components/TodoItem.jsx` | Displays one task; calls `onToggle`, `onEdit`, `onDelete` props |
+| `components/FilterBar.jsx` | Status filter buttons + search input; calls `onFilterChange` / `onSearchChange` |
 
 ---
 
-## Frontend: React + Vite
+## Key Non-Obvious Implementation Details
 
-- Vite dev server proxies `/api` requests to `http://localhost:8080`
-- All API calls use the native `fetch` API
-- Components in `src/components/`
-- State management with React hooks (`useState`, `useEffect`)
+**Priority sorting is done in the Service layer, not the database.**
+`TodoService` defines a static `BY_PRIORITY_THEN_CREATED` comparator (HIGH → MEDIUM → LOW, then newest first) and applies it after every repository fetch in `getAllTodos()`. Do not add `ORDER BY priority` to JPQL queries.
 
----
+**`TodoResponse` has two factory methods.**
+`TodoResponse.from(todo)` is used everywhere except creation. `TodoResponse.fromWithWarning(todo)` is used only in `createTodo()` — it adds `"warning": "due_date_in_past"` to the HTTP 201 response when `dueDate < today` (MN-03).
 
-## Coding Conventions
+**Filter + toggle interaction.**
+When a status filter is active (`active` or `completed`) and the user toggles a task's status, `App.jsx` removes that task from the displayed list (it no longer matches the filter) instead of updating it in place.
 
-- **No business logic in Controllers** — delegate to Service layer
-- **No database queries in Services** — delegate to Repository layer
-- **Input validation** using `@Valid` + Bean Validation (`@NotBlank`, `@Size`, etc.)
-- **DTOs** for request/response bodies — never expose JPA entities directly in API
-- **HTML escaping**: always use `textContent` (not `innerHTML`) in React to prevent XSS
+**`@Valid` on controller + `GlobalExceptionHandler`.**
+`TodoRequest` has `@NotBlank` and `@Size(max=200)` on `title`. Spring throws `MethodArgumentNotValidException` on failure; `GlobalExceptionHandler` catches it and returns `{"errors": {"title": "..."}}`.
 
 ---
 
-## Quality Attributes (from Architecture lecture)
+## API Reference
 
-| Attribute       | Approach                                                        |
-|-----------------|-----------------------------------------------------------------|
-| Simplicity      | MVC layers, each with a single responsibility                   |
-| Usability       | RESTful API is self-documenting; React UI follows human-centred design |
-| Reliability     | File-based H2 ensures data survives restarts; input validation prevents corrupt state |
-| Maintainability | Repository pattern allows DB swap without touching business logic |
+Base path: `/api/todos` — all responses `application/json`.
+
+| Method | URL | Action | Success |
+|---|---|---|---|
+| GET | `/api/todos` | All todos (sorted by priority then date) | 200 |
+| GET | `/api/todos?status=active\|completed` | Filtered list | 200 |
+| GET | `/api/todos?search=keyword` | Full-text search on title + description | 200 |
+| GET | `/api/todos/{id}` | Single todo | 200 |
+| POST | `/api/todos` | Create todo | 201 (may include `warning` field) |
+| PUT | `/api/todos/{id}` | Update title/description/priority/dueDate | 200 |
+| PATCH | `/api/todos/{id}/status` | Toggle completed ↔ active | 200 |
+| DELETE | `/api/todos/{id}` | Delete | 204 |
+
+Error codes: `400` validation, `404` not found.
+
+---
+
+## Coding Constraints
+
+- **No business logic in Controllers** — delegate to Service.
+- **No queries in Services** — delegate to Repository.
+- **DTOs only in API** — never pass `Todo` entity to/from the controller.
+- **`TodoResponse.from()`** for all responses except `createTodo`, which uses `fromWithWarning()`.
+- **Frontend XSS**: React escapes content by default — never use `dangerouslySetInnerHTML`.
+- **H2 file** (`backend/data/tododb.mv.db`) must not be deleted — it is the persistent store.
