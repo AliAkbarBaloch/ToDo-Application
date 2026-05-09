@@ -59,7 +59,8 @@ public class TodoService {
     public TodoResponse createTodo(TodoRequest request) {
         Todo todo = new Todo();
         applyRequest(todo, request);
-        return TodoResponse.from(todoRepository.save(todo));
+        // MN-03: use fromWithWarning so response includes warning:"due_date_in_past" when applicable
+        return TodoResponse.fromWithWarning(todoRepository.save(todo));
     }
 
     public TodoResponse updateTodo(Long id, TodoRequest request) {

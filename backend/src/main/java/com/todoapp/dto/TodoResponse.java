@@ -4,6 +4,7 @@ import com.todoapp.model.Todo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * DTO for outgoing API responses.
@@ -19,6 +20,8 @@ public class TodoResponse {
     private LocalDate dueDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    /** MN-03: set to "due_date_in_past" on create when dueDate < today, otherwise null. */
+    private String warning;
 
     public static TodoResponse from(Todo todo) {
         TodoResponse r = new TodoResponse();
@@ -33,6 +36,15 @@ public class TodoResponse {
         return r;
     }
 
+    public static TodoResponse fromWithWarning(Todo todo) {
+        TodoResponse r = from(todo);
+        if (todo.getDueDate() != null
+                && ChronoUnit.DAYS.between(LocalDate.now(), todo.getDueDate()) < 0) {
+            r.warning = "due_date_in_past";
+        }
+        return r;
+    }
+
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
@@ -41,4 +53,5 @@ public class TodoResponse {
     public LocalDate getDueDate() { return dueDate; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public String getWarning() { return warning; }
 }
