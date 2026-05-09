@@ -13,6 +13,7 @@ export default function EditTodoForm({ todo, onSave, onCancel }) {
   const [dueDate, setDueDate] = useState(todo.dueDate || '')
   const [titleError, setTitleError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [dueDateBlurred, setDueDateBlurred] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
   const dueDateInPast = dueDate && dueDate < today
@@ -93,10 +94,11 @@ export default function EditTodoForm({ todo, onSave, onCancel }) {
               id={`edit-due-${todo.id}`}
               type="date"
               value={dueDate}
-              onChange={e => setDueDate(e.target.value)}
+              onChange={e => { setDueDate(e.target.value); setDueDateBlurred(false) }}
+              onBlur={() => setDueDateBlurred(true)}
             />
-            {dueDateInPast && (
-              <span className="due-date-warning">⚠ Due date is in the past</span>
+            {dueDateInPast && dueDateBlurred && (
+              <span className="due-date-warning">⚠ Due date is in the past — are you sure?</span>
             )}
           </div>
         </div>

@@ -13,6 +13,8 @@ export default function AddTodoForm({ onSubmit }) {
   const [dueDate, setDueDate] = useState('')
   const [titleError, setTitleError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  // MN-03: show warning only after the user has left the date field
+  const [dueDateBlurred, setDueDateBlurred] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
   const dueDateInPast = dueDate && dueDate < today
@@ -46,6 +48,7 @@ export default function AddTodoForm({ onSubmit }) {
       setPriority('MEDIUM')
       setDueDate('')
       setTitleError('')
+      setDueDateBlurred(false)
     } catch (err) {
       if (err?.errors?.title) setTitleError(err.errors.title)
     } finally {
@@ -104,10 +107,11 @@ export default function AddTodoForm({ onSubmit }) {
               id="new-due"
               type="date"
               value={dueDate}
-              onChange={e => setDueDate(e.target.value)}
+              onChange={e => { setDueDate(e.target.value); setDueDateBlurred(false) }}
+              onBlur={() => setDueDateBlurred(true)}
             />
-            {dueDateInPast && (
-              <span className="due-date-warning">⚠ Due date is in the past</span>
+            {dueDateInPast && dueDateBlurred && (
+              <span className="due-date-warning">⚠ Due date is in the past — are you sure?</span>
             )}
           </div>
         </div>
