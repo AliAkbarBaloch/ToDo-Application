@@ -8,7 +8,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MVC — Service layer (business logic).
@@ -18,6 +20,14 @@ import java.util.List;
 @Transactional
 public class TodoService {
 
+    // US-08: High-priority tasks appear first; ties broken by creation date (newest first)
+    private static final Map<Todo.Priority, Integer> PRIORITY_ORDER =
+            Map.of(Todo.Priority.HIGH, 0, Todo.Priority.MEDIUM, 1, Todo.Priority.LOW, 2);
+
+    private static final Comparator<Todo> BY_PRIORITY_THEN_CREATED =
+            Comparator.comparingInt((Todo t) -> PRIORITY_ORDER.getOrDefault(t.getPriority(), 1))
+                      .thenComparing(Comparator.comparing(Todo::getCreatedAt).reversed());
+
     private final TodoRepository todoRepository;
 
     public TodoService(TodoRepository todoRepository) {
@@ -25,20 +35,21 @@ public class TodoService {
     }
 
     public List<TodoResponse> getAllTodos(String status, String search) {
+        List<Todo> todos;
         if (search != null && !search.isBlank()) {
-            return todoRepository.searchByKeyword(search.trim())
-                    .stream().map(TodoResponse::from).toList();
+            todos = todoRepository.searchByKeyword(search.trim());
+        } else if ("active".equalsIgnoreCase(status)) {
+            todos = todoRepository.findByCompletedOrderByCreatedAtDesc(false);
+        } else if ("completed".equalsIgnoreCase(status)) {
+            todos = todoRepository.findByCompletedOrderByCreatedAtDesc(true);
+        } else {
+            todos = todoRepository.findAllByOrderByCreatedAtDesc();
         }
-        if ("active".equalsIgnoreCase(status)) {
-            return todoRepository.findByCompletedOrderByCreatedAtDesc(false)
-                    .stream().map(TodoResponse::from).toList();
-        }
-        if ("completed".equalsIgnoreCase(status)) {
-            return todoRepository.findByCompletedOrderByCreatedAtDesc(true)
-                    .stream().map(TodoResponse::from).toList();
-        }
-        return todoRepository.findAllByOrderByCreatedAtDesc()
-                .stream().map(TodoResponse::from).toList();
+        // US-08: sort by priority (HIGH → MEDIUM → LOW), then newest first within each group
+        return todos.stream()
+                .sorted(BY_PRIORITY_THEN_CREATED)
+                .map(TodoResponse::from)
+                .toList();
     }
 
     public TodoResponse getTodoById(Long id) {
