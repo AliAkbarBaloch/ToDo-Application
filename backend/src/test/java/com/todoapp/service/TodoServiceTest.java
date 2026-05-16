@@ -72,6 +72,19 @@ class TodoServiceTest {
         assertThat(result.getWarning()).isNull();
     }
 
+    @Test
+    void createTodo_pastDueDate_returnsResponseWithDueDateInPastWarning() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        TodoRequest req = makeRequest("Old task", Todo.Priority.LOW, yesterday);
+        Todo saved = makeTodo(6L, "Old task", Todo.Priority.LOW, LocalDateTime.now());
+        saved.setDueDate(yesterday);
+        when(todoRepository.save(any(Todo.class))).thenReturn(saved);
+
+        TodoResponse result = todoService.createTodo(req);
+
+        assertThat(result.getWarning()).isEqualTo("due_date_in_past");
+    }
+
     // ── getTodoById ───────────────────────────────────────────────────────────
 
     @Test
