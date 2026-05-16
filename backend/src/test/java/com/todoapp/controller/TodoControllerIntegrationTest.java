@@ -60,6 +60,24 @@ class TodoControllerIntegrationTest {
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
+    // ── GET /api/todos/{id} ───────────────────────────────────────────────────
+
+    @Test
+    void getTodoById_existingId_returns200WithTodo() throws Exception {
+        Todo saved = persistTodo("My task", false, Todo.Priority.HIGH);
+
+        mockMvc.perform(get("/api/todos/{id}", saved.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("My task"))
+                .andExpect(jsonPath("$.priority").value("HIGH"));
+    }
+
+    @Test
+    void getTodoById_missingId_returns404() throws Exception {
+        mockMvc.perform(get("/api/todos/{id}", 9999L))
+                .andExpect(status().isNotFound());
+    }
+
     @Test
     void getAllTodos_searchKeyword_returnsMatchingTodos() throws Exception {
         persistTodo("Buy groceries", false, Todo.Priority.LOW);
