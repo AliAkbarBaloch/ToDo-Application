@@ -1,5 +1,6 @@
 package com.todoapp.service;
 
+import com.todoapp.dto.TodoRequest;
 import com.todoapp.dto.TodoResponse;
 import com.todoapp.model.Todo;
 import com.todoapp.repository.TodoRepository;
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +47,29 @@ class TodoServiceTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // Helper: build a TodoRequest
+    private TodoRequest makeRequest(String title, Todo.Priority priority, LocalDate dueDate) {
+        TodoRequest req = new TodoRequest();
+        req.setTitle(title);
+        req.setPriority(priority);
+        req.setDueDate(dueDate);
+        return req;
+    }
+
+    // ── createTodo ────────────────────────────────────────────────────────────
+
+    @Test
+    void createTodo_noDueDate_returnsResponseWithNoWarning() {
+        TodoRequest req = makeRequest("New task", Todo.Priority.MEDIUM, null);
+        Todo saved = makeTodo(5L, "New task", Todo.Priority.MEDIUM, LocalDateTime.now());
+        when(todoRepository.save(any(Todo.class))).thenReturn(saved);
+
+        TodoResponse result = todoService.createTodo(req);
+
+        assertThat(result.getTitle()).isEqualTo("New task");
+        assertThat(result.getWarning()).isNull();
     }
 
     // ── getTodoById ───────────────────────────────────────────────────────────
