@@ -6,10 +6,22 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // All /api requests forwarded to Spring Boot — basic client-server connection
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+      },
+    },
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      thresholds: {
+        lines: 80,
+        statements: 80,
       },
     },
   },
