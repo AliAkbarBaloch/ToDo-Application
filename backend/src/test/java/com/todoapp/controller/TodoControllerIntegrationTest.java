@@ -109,6 +109,31 @@ class TodoControllerIntegrationTest {
                 .andExpect(jsonPath("$.warning", is("due_date_in_past")));
     }
 
+    // ── PUT /api/todos/{id} ───────────────────────────────────────────────────
+
+    @Test
+    void updateTodo_existingId_returns200WithUpdatedTodo() throws Exception {
+        Todo saved = persistTodo("Original", false, Todo.Priority.LOW);
+        TodoRequest req = buildRequest("Updated title", Todo.Priority.HIGH, null);
+
+        mockMvc.perform(put("/api/todos/{id}", saved.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Updated title"))
+                .andExpect(jsonPath("$.priority").value("HIGH"));
+    }
+
+    @Test
+    void updateTodo_missingId_returns404() throws Exception {
+        TodoRequest req = buildRequest("Title", Todo.Priority.MEDIUM, null);
+
+        mockMvc.perform(put("/api/todos/{id}", 9999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isNotFound());
+    }
+
     // ── GET /api/todos/{id} ───────────────────────────────────────────────────
 
     @Test
