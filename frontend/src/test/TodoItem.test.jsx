@@ -20,3 +20,10 @@ test('TodoItem renders title and description', () => {
   expect(screen.getByText('Test task')).toBeInTheDocument()
   expect(screen.getByText('Some description')).toBeInTheDocument()
 })
+
+test('TodoItem renders priority badge with correct label', () => {
+  const todo = { ...baseTodo, priority: 'HIGH' }
+  render(<TodoItem todo={todo} onToggle={() => {}} onEdit={() => {}} onDelete={() => {}} />)
+
+  expect(screen.getByText('High')).toBeInTheDocument()
+})
