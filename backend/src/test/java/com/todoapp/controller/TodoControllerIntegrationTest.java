@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.is;
+
 import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -58,6 +60,53 @@ class TodoControllerIntegrationTest {
         mockMvc.perform(get("/api/todos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    // ── POST /api/todos ───────────────────────────────────────────────────────
+
+    @Test
+    void createTodo_validRequest_returns201WithCreatedTodo() throws Exception {
+        TodoRequest req = buildRequest("New task", Todo.Priority.MEDIUM, null);
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("New task"))
+                .andExpect(jsonPath("$.priority").value("MEDIUM"));
+    }
+
+    @Test
+    void createTodo_emptyTitle_returns400WithFieldError() throws Exception {
+        TodoRequest req = buildRequest("", Todo.Priority.LOW, null);
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.title").exists());
+    }
+
+    @Test
+    void createTodo_titleTooLong_returns400WithFieldError() throws Exception {
+        TodoRequest req = buildRequest("A".repeat(201), Todo.Priority.LOW, null);
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.title").exists());
+    }
+
+    @Test
+    void createTodo_pastDueDate_returns201WithWarning() throws Exception {
+        TodoRequest req = buildRequest("Old task", Todo.Priority.LOW, LocalDate.now().minusDays(1));
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.warning", is("due_date_in_past")));
     }
 
     // ── GET /api/todos/{id} ───────────────────────────────────────────────────
