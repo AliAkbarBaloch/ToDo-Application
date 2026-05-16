@@ -3,6 +3,7 @@ package com.todoapp.service;
 import com.todoapp.dto.TodoResponse;
 import com.todoapp.model.Todo;
 import com.todoapp.repository.TodoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -45,7 +47,20 @@ class TodoServiceTest {
         }
     }
 
-    // ── getAllTodos (no filter) ────────────────────────────────────────────────
+    // ── getTodoById ───────────────────────────────────────────────────────────
+
+    @Test
+    void getTodoById_existingId_returnsTodoResponse() {
+        Todo todo = makeTodo(10L, "Existing task", Todo.Priority.HIGH, LocalDateTime.now());
+        when(todoRepository.findById(10L)).thenReturn(Optional.of(todo));
+
+        TodoResponse result = todoService.getTodoById(10L);
+
+        assertThat(result.getId()).isEqualTo(10L);
+        assertThat(result.getTitle()).isEqualTo("Existing task");
+    }
+
+    // ── getAllTodos ───────────────────────────────────────────────────────────
 
     @Test
     void getAllTodos_activeFilter_returnsOnlyActiveTodos() {
