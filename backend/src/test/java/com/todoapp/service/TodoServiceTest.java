@@ -62,6 +62,19 @@ class TodoServiceTest {
     }
 
     @Test
+    void getAllTodos_searchKeyword_delegatesToSearchRepository() {
+        Todo match = makeTodo(3L, "Buy groceries", Todo.Priority.MEDIUM, LocalDateTime.now());
+
+        when(todoRepository.searchByKeyword("grocery")).thenReturn(List.of(match));
+
+        List<TodoResponse> result = todoService.getAllTodos(null, "grocery");
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getTitle()).isEqualTo("Buy groceries");
+        verify(todoRepository).searchByKeyword("grocery");
+    }
+
+    @Test
     void getAllTodos_completedFilter_returnsOnlyCompletedTodos() {
         Todo done = makeTodo(2L, "Done task", Todo.Priority.LOW, LocalDateTime.now());
         done.setCompleted(true);
