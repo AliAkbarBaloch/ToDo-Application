@@ -58,6 +58,30 @@ class TodoServiceTest {
         return req;
     }
 
+    // ── updateTodo ────────────────────────────────────────────────────────────
+
+    @Test
+    void updateTodo_existingId_updatesFieldsAndReturnsResponse() {
+        Todo existing = makeTodo(20L, "Old title", Todo.Priority.LOW, LocalDateTime.now());
+        when(todoRepository.findById(20L)).thenReturn(Optional.of(existing));
+        when(todoRepository.save(existing)).thenReturn(existing);
+
+        TodoRequest req = makeRequest("New title", Todo.Priority.HIGH, null);
+        TodoResponse result = todoService.updateTodo(20L, req);
+
+        assertThat(result.getTitle()).isEqualTo("New title");
+        assertThat(result.getPriority()).isEqualTo(Todo.Priority.HIGH);
+    }
+
+    @Test
+    void updateTodo_missingId_throwsEntityNotFoundException() {
+        when(todoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> todoService.updateTodo(99L, makeRequest("x", Todo.Priority.LOW, null)))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("99");
+    }
+
     // ── createTodo ────────────────────────────────────────────────────────────
 
     @Test
