@@ -48,6 +48,20 @@ class TodoServiceTest {
     // ── getAllTodos (no filter) ────────────────────────────────────────────────
 
     @Test
+    void getAllTodos_activeFilter_returnsOnlyActiveTodos() {
+        Todo active = makeTodo(1L, "Active task", Todo.Priority.MEDIUM, LocalDateTime.now());
+        active.setCompleted(false);
+
+        when(todoRepository.findByCompletedOrderByCreatedAtDesc(false)).thenReturn(List.of(active));
+
+        List<TodoResponse> result = todoService.getAllTodos("active", null);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).isCompleted()).isFalse();
+        verify(todoRepository).findByCompletedOrderByCreatedAtDesc(false);
+    }
+
+    @Test
     void getAllTodos_noFilter_returnsSortedByPriorityThenNewestFirst() {
         Todo low  = makeTodo(1L, "Low task",    Todo.Priority.LOW,    LocalDateTime.now().minusHours(1));
         Todo high = makeTodo(2L, "High task",   Todo.Priority.HIGH,   LocalDateTime.now());
