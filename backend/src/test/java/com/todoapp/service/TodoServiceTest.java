@@ -58,6 +58,27 @@ class TodoServiceTest {
         return req;
     }
 
+    // ── deleteTodo ────────────────────────────────────────────────────────────
+
+    @Test
+    void deleteTodo_existingId_deletesSuccessfully() {
+        when(todoRepository.existsById(40L)).thenReturn(true);
+
+        todoService.deleteTodo(40L);
+
+        verify(todoRepository).deleteById(40L);
+    }
+
+    @Test
+    void deleteTodo_missingId_throwsEntityNotFoundException() {
+        when(todoRepository.existsById(99L)).thenReturn(false);
+
+        assertThatThrownBy(() -> todoService.deleteTodo(99L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("99");
+        verify(todoRepository, never()).deleteById(any());
+    }
+
     // ── toggleStatus ─────────────────────────────────────────────────────────
 
     @Test
