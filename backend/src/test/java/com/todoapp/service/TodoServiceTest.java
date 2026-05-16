@@ -58,6 +58,41 @@ class TodoServiceTest {
         return req;
     }
 
+    // ── toggleStatus ─────────────────────────────────────────────────────────
+
+    @Test
+    void toggleStatus_activeTodo_becomesCompleted() {
+        Todo todo = makeTodo(30L, "Active", Todo.Priority.MEDIUM, LocalDateTime.now());
+        todo.setCompleted(false);
+        when(todoRepository.findById(30L)).thenReturn(Optional.of(todo));
+        when(todoRepository.save(todo)).thenReturn(todo);
+
+        TodoResponse result = todoService.toggleStatus(30L);
+
+        assertThat(result.isCompleted()).isTrue();
+    }
+
+    @Test
+    void toggleStatus_completedTodo_becomesActive() {
+        Todo todo = makeTodo(31L, "Done", Todo.Priority.HIGH, LocalDateTime.now());
+        todo.setCompleted(true);
+        when(todoRepository.findById(31L)).thenReturn(Optional.of(todo));
+        when(todoRepository.save(todo)).thenReturn(todo);
+
+        TodoResponse result = todoService.toggleStatus(31L);
+
+        assertThat(result.isCompleted()).isFalse();
+    }
+
+    @Test
+    void toggleStatus_missingId_throwsEntityNotFoundException() {
+        when(todoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> todoService.toggleStatus(99L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("99");
+    }
+
     // ── updateTodo ────────────────────────────────────────────────────────────
 
     @Test
