@@ -109,6 +109,17 @@ class TodoControllerIntegrationTest {
                 .andExpect(jsonPath("$.warning", is("due_date_in_past")));
     }
 
+    // ── PATCH /api/todos/{id}/status ─────────────────────────────────────────
+
+    @Test
+    void toggleStatus_activeTodo_returnsCompletedTodo() throws Exception {
+        Todo saved = persistTodo("Task", false, Todo.Priority.MEDIUM);
+
+        mockMvc.perform(patch("/api/todos/{id}/status", saved.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completed").value(true));
+    }
+
     // ── PUT /api/todos/{id} ───────────────────────────────────────────────────
 
     @Test
