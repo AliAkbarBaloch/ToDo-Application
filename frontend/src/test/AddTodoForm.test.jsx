@@ -2,6 +2,19 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AddTodoForm from '../components/AddTodoForm'
 
+// ── due date warning ──────────────────────────────────────────────────────────
+
+test('AddTodoForm shows past-date warning only after date field loses focus', async () => {
+  render(<AddTodoForm onSubmit={vi.fn()} />)
+  const dateInput = screen.getByLabelText(/due date/i)
+
+  await userEvent.type(dateInput, '2020-01-01')
+  expect(screen.queryByText(/due date is in the past/i)).not.toBeInTheDocument()
+
+  await userEvent.tab()
+  expect(screen.getByText(/due date is in the past/i)).toBeInTheDocument()
+})
+
 // ── validation ────────────────────────────────────────────────────────────────
 
 test('AddTodoForm shows error and does not submit when title is blank', async () => {
