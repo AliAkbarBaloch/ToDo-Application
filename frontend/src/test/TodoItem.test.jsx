@@ -54,3 +54,26 @@ test('TodoItem renders priority badge with correct label', () => {
 
   expect(screen.getByText('High')).toBeInTheDocument()
 })
+
+test('TodoItem shows overdue label when due date is in the past', () => {
+  const todo = { ...baseTodo, dueDate: '2020-01-01' }
+  render(<TodoItem todo={todo} onToggle={() => {}} onEdit={() => {}} onDelete={() => {}} />)
+
+  expect(screen.getByText(/overdue by/i)).toBeInTheDocument()
+})
+
+test('TodoItem shows Due Today label when due date is today', () => {
+  const today = new Date().toISOString().split('T')[0]
+  const todo = { ...baseTodo, dueDate: today }
+  render(<TodoItem todo={todo} onToggle={() => {}} onEdit={() => {}} onDelete={() => {}} />)
+
+  expect(screen.getByText(/Due Today/)).toBeInTheDocument()
+})
+
+test('TodoItem shows future due date label when due date is tomorrow', () => {
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+  const todo = { ...baseTodo, dueDate: tomorrow }
+  render(<TodoItem todo={todo} onToggle={() => {}} onEdit={() => {}} onDelete={() => {}} />)
+
+  expect(screen.getByText(new RegExp(`Due ${tomorrow}`))).toBeInTheDocument()
+})
