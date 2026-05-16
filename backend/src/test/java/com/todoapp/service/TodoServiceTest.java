@@ -60,6 +60,15 @@ class TodoServiceTest {
         assertThat(result.getTitle()).isEqualTo("Existing task");
     }
 
+    @Test
+    void getTodoById_missingId_throwsEntityNotFoundException() {
+        when(todoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> todoService.getTodoById(99L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("99");
+    }
+
     // ── getAllTodos ───────────────────────────────────────────────────────────
 
     @Test
