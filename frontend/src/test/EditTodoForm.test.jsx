@@ -10,6 +10,30 @@ const todo = {
   dueDate: '',
 }
 
+// ── validation ────────────────────────────────────────────────────────────────
+
+test('EditTodoForm shows error and does not call onSave when title is cleared', async () => {
+  const onSave = vi.fn()
+  render(<EditTodoForm todo={todo} onSave={onSave} onCancel={vi.fn()} />)
+
+  await userEvent.clear(screen.getByDisplayValue('Existing title'))
+  await userEvent.click(screen.getByRole('button', { name: /save/i }))
+
+  expect(screen.getByText('Title is required')).toBeInTheDocument()
+  expect(onSave).not.toHaveBeenCalled()
+})
+
+test('EditTodoForm shows past-date warning only after date field loses focus', async () => {
+  render(<EditTodoForm todo={todo} onSave={vi.fn()} onCancel={vi.fn()} />)
+  const dateInput = screen.getByLabelText(/due date/i)
+
+  await userEvent.type(dateInput, '2020-01-01')
+  expect(screen.queryByText(/due date is in the past/i)).not.toBeInTheDocument()
+
+  await userEvent.tab()
+  expect(screen.getByText(/due date is in the past/i)).toBeInTheDocument()
+})
+
 // ── pre-fill ──────────────────────────────────────────────────────────────────
 
 test('EditTodoForm pre-fills inputs from todo prop', () => {
