@@ -21,6 +21,33 @@ test('TodoItem renders title and description', () => {
   expect(screen.getByText('Some description')).toBeInTheDocument()
 })
 
+test('TodoItem calls onToggle when checkbox is clicked', async () => {
+  const onToggle = vi.fn()
+  render(<TodoItem todo={baseTodo} onToggle={onToggle} onEdit={() => {}} onDelete={() => {}} />)
+
+  await userEvent.click(screen.getByRole('checkbox'))
+
+  expect(onToggle).toHaveBeenCalledTimes(1)
+})
+
+test('TodoItem calls onEdit when Edit button is clicked', async () => {
+  const onEdit = vi.fn()
+  render(<TodoItem todo={baseTodo} onToggle={() => {}} onEdit={onEdit} onDelete={() => {}} />)
+
+  await userEvent.click(screen.getByRole('button', { name: /edit/i }))
+
+  expect(onEdit).toHaveBeenCalledTimes(1)
+})
+
+test('TodoItem calls onDelete when Delete button is clicked', async () => {
+  const onDelete = vi.fn()
+  render(<TodoItem todo={baseTodo} onToggle={() => {}} onEdit={() => {}} onDelete={onDelete} />)
+
+  await userEvent.click(screen.getByRole('button', { name: /delete/i }))
+
+  expect(onDelete).toHaveBeenCalledTimes(1)
+})
+
 test('TodoItem renders priority badge with correct label', () => {
   const todo = { ...baseTodo, priority: 'HIGH' }
   render(<TodoItem todo={todo} onToggle={() => {}} onEdit={() => {}} onDelete={() => {}} />)
