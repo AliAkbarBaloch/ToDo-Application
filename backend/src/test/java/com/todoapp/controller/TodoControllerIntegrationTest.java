@@ -59,4 +59,16 @@ class TodoControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
+
+    @Test
+    void getAllTodos_withData_returnsTodosInPriorityOrder() throws Exception {
+        persistTodo("Low task",  false, Todo.Priority.LOW);
+        persistTodo("High task", false, Todo.Priority.HIGH);
+
+        mockMvc.perform(get("/api/todos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].title").value("High task"))
+                .andExpect(jsonPath("$[1].title").value("Low task"));
+    }
 }
