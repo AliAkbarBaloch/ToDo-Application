@@ -34,6 +34,30 @@ test('EditTodoForm shows past-date warning only after date field loses focus', a
   expect(screen.getByText(/due date is in the past/i)).toBeInTheDocument()
 })
 
+// ── save / cancel ─────────────────────────────────────────────────────────────
+
+test('EditTodoForm calls onSave with updated title when form is submitted', async () => {
+  const onSave = vi.fn().mockResolvedValue(undefined)
+  render(<EditTodoForm todo={todo} onSave={onSave} onCancel={vi.fn()} />)
+
+  await userEvent.clear(screen.getByDisplayValue('Existing title'))
+  await userEvent.type(screen.getByLabelText(/task title/i), 'Updated title')
+  await userEvent.click(screen.getByRole('button', { name: /save/i }))
+
+  expect(onSave).toHaveBeenCalledWith(
+    expect.objectContaining({ title: 'Updated title' })
+  )
+})
+
+test('EditTodoForm calls onCancel when Cancel button is clicked', async () => {
+  const onCancel = vi.fn()
+  render(<EditTodoForm todo={todo} onSave={vi.fn()} onCancel={onCancel} />)
+
+  await userEvent.click(screen.getByRole('button', { name: /cancel/i }))
+
+  expect(onCancel).toHaveBeenCalledTimes(1)
+})
+
 // ── pre-fill ──────────────────────────────────────────────────────────────────
 
 test('EditTodoForm pre-fills inputs from todo prop', () => {

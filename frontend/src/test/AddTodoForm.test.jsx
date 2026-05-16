@@ -30,6 +30,17 @@ test('AddTodoForm calls onSubmit with trimmed title and selected priority', asyn
   )
 })
 
+// ── clear button ─────────────────────────────────────────────────────────────
+
+test('AddTodoForm clears all fields when Clear button is clicked', async () => {
+  render(<AddTodoForm onSubmit={vi.fn()} />)
+
+  await userEvent.type(screen.getByLabelText(/task title/i), 'Some task')
+  await userEvent.click(screen.getByRole('button', { name: /clear/i }))
+
+  expect(screen.getByLabelText(/task title/i)).toHaveValue('')
+})
+
 // ── validation ────────────────────────────────────────────────────────────────
 
 test('AddTodoForm shows error and does not submit when title is blank', async () => {
