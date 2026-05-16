@@ -73,6 +73,19 @@ class TodoServiceTest {
     }
 
     @Test
+    void createTodo_futureDueDate_returnsResponseWithNoWarning() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        TodoRequest req = makeRequest("Future task", Todo.Priority.HIGH, tomorrow);
+        Todo saved = makeTodo(7L, "Future task", Todo.Priority.HIGH, LocalDateTime.now());
+        saved.setDueDate(tomorrow);
+        when(todoRepository.save(any(Todo.class))).thenReturn(saved);
+
+        TodoResponse result = todoService.createTodo(req);
+
+        assertThat(result.getWarning()).isNull();
+    }
+
+    @Test
     void createTodo_pastDueDate_returnsResponseWithDueDateInPastWarning() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         TodoRequest req = makeRequest("Old task", Todo.Priority.LOW, yesterday);
