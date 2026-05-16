@@ -109,6 +109,22 @@ class TodoControllerIntegrationTest {
                 .andExpect(jsonPath("$.warning", is("due_date_in_past")));
     }
 
+    // ── DELETE /api/todos/{id} ────────────────────────────────────────────────
+
+    @Test
+    void deleteTodo_existingId_returns204() throws Exception {
+        Todo saved = persistTodo("To delete", false, Todo.Priority.LOW);
+
+        mockMvc.perform(delete("/api/todos/{id}", saved.getId()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteTodo_missingId_returns404() throws Exception {
+        mockMvc.perform(delete("/api/todos/{id}", 9999L))
+                .andExpect(status().isNotFound());
+    }
+
     // ── PATCH /api/todos/{id}/status ─────────────────────────────────────────
 
     @Test
