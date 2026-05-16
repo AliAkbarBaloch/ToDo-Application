@@ -8,28 +8,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 All backend commands must be run from the `backend/` directory. All frontend commands from `frontend/`.
 
-### Backend (Spring Boot / Maven)
+### Backend (Spring Boot / Maven) — run from `backend/`
 
 ```bash
 cd backend
-mvn compile                          # compile only
-mvn test                             # run all tests with JaCoCo coverage report
-mvn test -Dtest=ClassName            # run a single test class
-mvn test -Dtest=ClassName#methodName # run a single test method
-mvn verify                           # run tests + enforce ≥80% line coverage threshold
-mvn org.pitest:pitest-maven:mutationCoverage  # run mutation tests (target ≥70%)
-mvn spring-boot:run                  # start the server on http://localhost:8080
+mvn compile                                          # compile only
+mvn test                                             # run all tests with JaCoCo coverage report
+mvn test -Dtest=ClassName                            # run a single test class
+mvn test -Dtest=ClassName#methodName                 # run a single test method
+mvn verify                                           # run tests + enforce ≥80% line coverage threshold
+mvn org.pitest:pitest-maven:mutationCoverage         # run mutation tests (target ≥70%)
+mvn spring-boot:run                                  # start the server on http://localhost:8080
 ```
 
-### Frontend (React / Vite)
+### Frontend (React / Vite) — run from `frontend/`
 
 ```bash
 cd frontend
-npm install          # install dependencies (first time only)
-npm run dev          # start dev server on http://localhost:5173
-npm test             # run all Vitest tests once
+npm install            # install dependencies (first time only)
+npm run dev            # start dev server on http://localhost:5173
+npm test               # run all Vitest tests once
 npm run test:coverage  # run tests with v8 coverage report (threshold ≥80%)
-npm run build        # production build to dist/
+npm run build          # production build to dist/
 ```
 
 ### Running the full stack
