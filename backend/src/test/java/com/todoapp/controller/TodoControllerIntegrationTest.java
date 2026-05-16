@@ -61,6 +61,17 @@ class TodoControllerIntegrationTest {
     }
 
     @Test
+    void getAllTodos_statusFilter_returnsOnlyMatchingTodos() throws Exception {
+        persistTodo("Active task",    false, Todo.Priority.MEDIUM);
+        persistTodo("Completed task", true,  Todo.Priority.MEDIUM);
+
+        mockMvc.perform(get("/api/todos").param("status", "active"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("Active task"));
+    }
+
+    @Test
     void getAllTodos_withData_returnsTodosInPriorityOrder() throws Exception {
         persistTodo("Low task",  false, Todo.Priority.LOW);
         persistTodo("High task", false, Todo.Priority.HIGH);
