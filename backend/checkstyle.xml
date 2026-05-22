@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Checkstyle configuration for the todo-backend.
+    Tuned to the existing code style (4-space indent, 120-char line limit).
+    Run manually : mvn checkstyle:check
+    Runs on      : mvn verify (after tests)
+-->
+<module name="Checker">
+    <property name="severity"       value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Every .java file must end with a newline -->
+    <module name="NewlineAtEndOfFile"/>
+
+    <!-- No tab characters — spaces only -->
+    <module name="FileTabCharacter"/>
+
+    <!-- Max 120 chars per line (Checker-level in Checkstyle 10+) -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <!-- import/package lines are allowed to exceed the limit -->
+        <property name="ignorePattern" value="^import |^package "/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <!-- ── Naming conventions ──────────────────────────────────── -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+        <module name="TypeName"/>
+        <module name="MethodName"/>
+        <module name="MemberName"/>
+        <module name="ParameterName"/>
+        <module name="LocalVariableName"/>
+        <module name="ConstantName"/>
+
+        <!-- ── Imports ───────────────────────────────────────────── -->
+        <!-- No wildcard imports (import java.util.* is forbidden) -->
+        <module name="AvoidStarImport"/>
+        <!-- No unused imports -->
+        <module name="UnusedImports"/>
+        <!-- No java.sun.* or com.sun.* internals -->
+        <module name="IllegalImport"/>
+
+        <!-- ── Size limits ───────────────────────────────────────── -->
+        <module name="MethodLength">
+            <property name="max" value="60"/>
+        </module>
+
+        <!-- ── Braces ────────────────────────────────────────────── -->
+        <!-- All control-flow blocks (if/for/while/…) must have braces.
+             Note: compact single-line methods such as
+               public Long getId() { return id; }
+             are allowed because they are not control-flow statements. -->
+        <module name="NeedBraces">
+            <property name="tokens" value="LITERAL_DO, LITERAL_ELSE,
+                LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+        </module>
+
+        <!-- ── Modifier order ────────────────────────────────────── -->
+        <!-- Enforce: public/protected/private static abstract … final -->
+        <module name="ModifierOrder"/>
+        <!-- No redundant modifiers (e.g. public on interface methods) -->
+        <module name="RedundantModifier"/>
+
+        <!-- ── Code quality ──────────────────────────────────────── -->
+        <!-- No empty catch blocks without at least a comment -->
+        <module name="EmptyCatchBlock"/>
+        <!-- Compare Strings with .equals(), never == or != -->
+        <module name="StringLiteralEquality"/>
+        <!-- One variable per declaration statement -->
+        <module name="MultipleVariableDeclarations"/>
+        <!-- No stray semi-colons (e.g. if (x); ) -->
+        <module name="EmptyStatement"/>
+
+        <!-- ── Miscellaneous ─────────────────────────────────────── -->
+        <!-- Use uppercase L for long literals: 1000L not 1000l -->
+        <module name="UpperEll"/>
+        <!-- Java-style arrays: String[] args, not String args[] -->
+        <module name="ArrayTypeStyle"/>
+
+    </module>
+</module>
