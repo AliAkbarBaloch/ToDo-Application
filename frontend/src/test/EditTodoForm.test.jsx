@@ -44,9 +44,7 @@ test('EditTodoForm calls onSave with updated title when form is submitted', asyn
   await userEvent.type(screen.getByLabelText(/task title/i), 'Updated title')
   await userEvent.click(screen.getByRole('button', { name: /save/i }))
 
-  expect(onSave).toHaveBeenCalledWith(
-    expect.objectContaining({ title: 'Updated title' })
-  )
+  expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ title: 'Updated title' }))
 })
 
 test('EditTodoForm calls onCancel when Cancel button is clicked', async () => {

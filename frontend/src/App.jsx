@@ -33,11 +33,11 @@ export default function App() {
   // Fetch counts for the filter bar badges (always from unfiltered list)
   const refreshCounts = useCallback(() => {
     fetch(API)
-      .then(r => r.json())
-      .then(data => {
+      .then((r) => r.json())
+      .then((data) => {
         setAllCount(data.length)
-        setActiveCount(data.filter(t => !t.completed).length)
-        setCompletedCount(data.filter(t => t.completed).length)
+        setActiveCount(data.filter((t) => !t.completed).length)
+        setCompletedCount(data.filter((t) => t.completed).length)
       })
       .catch(() => {})
   }, [])
@@ -51,13 +51,23 @@ export default function App() {
     const url = params.toString() ? `${API}?${params}` : API
 
     fetch(url)
-      .then(r => r.ok ? r.json() : Promise.reject('Failed to load tasks'))
-      .then(data => { setTodos(data); setLoading(false) })
-      .catch(e => { setError(String(e)); setLoading(false) })
+      .then((r) => (r.ok ? r.json() : Promise.reject('Failed to load tasks')))
+      .then((data) => {
+        setTodos(data)
+        setLoading(false)
+      })
+      .catch((e) => {
+        setError(String(e))
+        setLoading(false)
+      })
   }, [filter, search])
 
-  useEffect(() => { loadTodos() }, [loadTodos])
-  useEffect(() => { refreshCounts() }, [refreshCounts, todos])
+  useEffect(() => {
+    loadTodos()
+  }, [loadTodos])
+  useEffect(() => {
+    refreshCounts()
+  }, [refreshCounts, todos])
 
   // US-01: Create a new task
   function createTodo(data) {
@@ -66,11 +76,11 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     })
-      .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
-      .then(created => {
+      .then((r) => (r.ok ? r.json() : r.json().then((e) => Promise.reject(e))))
+      .then((created) => {
         // Show at top only when current filter would include it
         if (filter === 'all' || filter === 'active') {
-          setTodos(prev => [created, ...prev])
+          setTodos((prev) => [created, ...prev])
         }
       })
   }
@@ -82,9 +92,9 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     })
-      .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
-      .then(updated => {
-        setTodos(prev => prev.map(t => t.id === id ? updated : t))
+      .then((r) => (r.ok ? r.json() : r.json().then((e) => Promise.reject(e))))
+      .then((updated) => {
+        setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)))
         setEditingId(null)
       })
   }
@@ -92,26 +102,27 @@ export default function App() {
   // US-03: Toggle completed / active
   function toggleTodo(id) {
     fetch(`${API}/${id}/status`, { method: 'PATCH' })
-      .then(r => r.ok ? r.json() : Promise.reject('Toggle failed'))
-      .then(updated => {
+      .then((r) => (r.ok ? r.json() : Promise.reject('Toggle failed')))
+      .then((updated) => {
         if (filter === 'all') {
-          setTodos(prev => prev.map(t => t.id === id ? updated : t))
+          setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)))
         } else {
           // Task no longer matches filter — remove it from view
-          setTodos(prev => prev.filter(t => t.id !== id))
+          setTodos((prev) => prev.filter((t) => t.id !== id))
         }
       })
-      .catch(e => setError(String(e)))
+      .catch((e) => setError(String(e)))
   }
 
   // US-05/MN-02: Delete with mandatory confirmation dialog
   function deleteTodo(id, title) {
-    if (!window.confirm(
-      `Are you sure you want to delete "${title}"? This cannot be undone.`
-    )) return
+    if (!window.confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`))
+      return
     fetch(`${API}/${id}`, { method: 'DELETE' })
-      .then(r => r.ok ? setTodos(prev => prev.filter(t => t.id !== id)) : Promise.reject('Delete failed'))
-      .catch(e => setError(String(e)))
+      .then((r) =>
+        r.ok ? setTodos((prev) => prev.filter((t) => t.id !== id)) : Promise.reject('Delete failed')
+      )
+      .catch((e) => setError(String(e)))
   }
 
   const counts = { all: allCount, active: activeCount, completed: completedCount }
@@ -128,9 +139,15 @@ export default function App() {
 
         <FilterBar
           filter={filter}
-          onFilterChange={f => { setFilter(f); setEditingId(null) }}
+          onFilterChange={(f) => {
+            setFilter(f)
+            setEditingId(null)
+          }}
           search={search}
-          onSearchChange={s => { setSearch(s); setEditingId(null) }}
+          onSearchChange={(s) => {
+            setSearch(s)
+            setEditingId(null)
+          }}
           counts={counts}
         />
 
@@ -148,25 +165,23 @@ export default function App() {
             </div>
           )}
 
-          {todos.map(todo =>
-            editingId === todo.id
-              ? (
-                <EditTodoForm
-                  key={todo.id}
-                  todo={todo}
-                  onSave={data => updateTodo(todo.id, data)}
-                  onCancel={() => setEditingId(null)}
-                />
-              )
-              : (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={() => toggleTodo(todo.id)}
-                  onEdit={() => setEditingId(todo.id)}
-                  onDelete={() => deleteTodo(todo.id, todo.title)}
-                />
-              )
+          {todos.map((todo) =>
+            editingId === todo.id ? (
+              <EditTodoForm
+                key={todo.id}
+                todo={todo}
+                onSave={(data) => updateTodo(todo.id, data)}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                onToggle={() => toggleTodo(todo.id)}
+                onEdit={() => setEditingId(todo.id)}
+                onDelete={() => deleteTodo(todo.id, todo.title)}
+              />
+            )
           )}
         </section>
       </main>

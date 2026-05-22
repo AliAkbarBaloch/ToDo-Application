@@ -59,7 +59,10 @@ export default function EditTodoForm({ todo, onSave, onCancel }) {
             id={`edit-title-${todo.id}`}
             type="text"
             value={title}
-            onChange={e => { setTitle(e.target.value); if (titleError) setTitleError('') }}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              if (titleError) setTitleError('')
+            }}
             maxLength={200}
           />
           {titleError && <span className="field-error">{titleError}</span>}
@@ -70,7 +73,7 @@ export default function EditTodoForm({ todo, onSave, onCancel }) {
           <textarea
             id={`edit-desc-${todo.id}`}
             value={description}
-            onChange={e => setDescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
@@ -80,7 +83,7 @@ export default function EditTodoForm({ todo, onSave, onCancel }) {
             <select
               id={`edit-priority-${todo.id}`}
               value={priority}
-              onChange={e => setPriority(e.target.value)}
+              onChange={(e) => setPriority(e.target.value)}
             >
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
@@ -94,7 +97,10 @@ export default function EditTodoForm({ todo, onSave, onCancel }) {
               id={`edit-due-${todo.id}`}
               type="date"
               value={dueDate}
-              onChange={e => { setDueDate(e.target.value); setDueDateBlurred(false) }}
+              onChange={(e) => {
+                setDueDate(e.target.value)
+                setDueDateBlurred(false)
+              }}
               onBlur={() => setDueDateBlurred(true)}
             />
             {dueDateInPast && dueDateBlurred && (

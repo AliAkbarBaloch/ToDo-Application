@@ -27,23 +27,23 @@ export default function TodoItem({ todo, onToggle, onEdit, onDelete }) {
           </span>
         </div>
 
-        {todo.description && (
-          <div className="task-description">{todo.description}</div>
-        )}
+        {todo.description && <div className="task-description">{todo.description}</div>}
 
         <div className="task-meta">
           {dueDateLabel && (
-            <span className={`due-date ${dueDateLabel.cls}`}>
-              📅 {dueDateLabel.text}
-            </span>
+            <span className={`due-date ${dueDateLabel.cls}`}>📅 {dueDateLabel.text}</span>
           )}
           <span>📝 Created {formatDate(todo.createdAt)}</span>
         </div>
       </div>
 
       <div className="task-actions">
-        <button className="btn-small btn-edit" onClick={onEdit}>Edit</button>
-        <button className="btn-small btn-delete" onClick={onDelete}>Delete</button>
+        <button className="btn-small btn-edit" onClick={onEdit}>
+          Edit
+        </button>
+        <button className="btn-small btn-delete" onClick={onDelete}>
+          Delete
+        </button>
       </div>
     </div>
   )
@@ -69,5 +69,9 @@ function getDueDateLabel(dueDate, completed) {
 
 function formatDate(isoString) {
   if (!isoString) return ''
-  return new Date(isoString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return new Date(isoString).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
 }

@@ -17,13 +17,13 @@ export default function FilterBar({ filter, onFilterChange, search, onSearchChan
           type="text"
           placeholder="Search tasks…"
           value={search}
-          onChange={e => onSearchChange(e.target.value)}
+          onChange={(e) => onSearchChange(e.target.value)}
           aria-label="Search tasks"
         />
       </div>
 
       <div className="filter-buttons">
-        {filters.map(f => (
+        {filters.map((f) => (
           <button
             key={f.key}
             className={`filter-btn${filter === f.key ? ' active' : ''}`}

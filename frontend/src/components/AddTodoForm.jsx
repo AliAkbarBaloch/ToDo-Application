@@ -74,7 +74,10 @@ export default function AddTodoForm({ onSubmit }) {
             id="new-title"
             type="text"
             value={title}
-            onChange={e => { setTitle(e.target.value); if (titleError) setTitleError('') }}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              if (titleError) setTitleError('')
+            }}
             placeholder="What do you want to accomplish?"
             maxLength={200}
           />
@@ -86,7 +89,7 @@ export default function AddTodoForm({ onSubmit }) {
           <textarea
             id="new-desc"
             value={description}
-            onChange={e => setDescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="Add more details about this task..."
           />
         </div>
@@ -94,7 +97,11 @@ export default function AddTodoForm({ onSubmit }) {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="new-priority">Priority</label>
-            <select id="new-priority" value={priority} onChange={e => setPriority(e.target.value)}>
+            <select
+              id="new-priority"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+            >
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
@@ -107,7 +114,10 @@ export default function AddTodoForm({ onSubmit }) {
               id="new-due"
               type="date"
               value={dueDate}
-              onChange={e => { setDueDate(e.target.value); setDueDateBlurred(false) }}
+              onChange={(e) => {
+                setDueDate(e.target.value)
+                setDueDateBlurred(false)
+              }}
               onBlur={() => setDueDateBlurred(true)}
             />
             {dueDateInPast && dueDateBlurred && (
