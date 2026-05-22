@@ -1,0 +1,74 @@
+name: CI
+
+# Run on every push/PR to main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Backend ────────────────────────────────────────────────────────────────
+  backend:
+    name: Backend — format · lint · build · test
+    runs-on: ubuntu-latest
+
+    # All 'run' steps execute inside backend/
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'          # caches ~/.m2/repository between runs
+
+      # One command covers everything because both Spotless and Checkstyle are
+      # bound to the 'validate' phase (runs before compile on every mvn call):
+      #   validate  → Spotless format check + Checkstyle lint
+      #   compile   → javac
+      #   test      → JUnit 5 (32 tests) + JaCoCo coverage report
+      #   verify    → JaCoCo ≥80 % line-coverage gate
+      - name: Format (Spotless) · Lint (Checkstyle) · Build · Test (JUnit/JaCoCo)
+        run: mvn -B verify
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend — lint · format · test · build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Format check (Prettier)
+        run: npm run format:check
+
+      # Vitest with v8 coverage — thresholds (≥80 % lines/statements) are
+      # enforced by vite.config.js; the step fails if they are not met
+      - name: Test with coverage (Vitest/v8)
+        run: npm run test:coverage
+
+      - name: Build (Vite)
+        run: npm run build
