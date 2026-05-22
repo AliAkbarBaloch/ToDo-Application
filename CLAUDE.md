@@ -12,14 +12,16 @@ All backend commands must be run from the `backend/` directory. All frontend com
 
 ```bash
 cd backend
-mvn compile                                          # compile only
+mvn compile                                          # compile (auto-runs Spotless check + Checkstyle at validate phase)
+mvn spotless:apply                                   # auto-format all Java files with Google Java Format (AOSP 4-space)
+mvn spotless:check                                   # check formatting without writing
 mvn checkstyle:check                                 # run Checkstyle linter only
 mvn test                                             # run all tests with JaCoCo coverage report
 mvn test -Dtest=ClassName                            # run a single test class
 mvn test -Dtest=ClassName#methodName                 # run a single test method
-mvn verify                                           # run tests + Checkstyle + enforce ≥80% line coverage
+mvn verify                                           # run tests + enforce ≥80% line coverage
 mvn org.pitest:pitest-maven:mutationCoverage         # run mutation tests (target ≥70%)
-mvn spring-boot:run                                  # start the server on http://localhost:8080
+mvn spring-boot:run                                  # start the server (auto-runs Spotless + Checkstyle first)
 ```
 
 ### Frontend (React / Vite) — run from `frontend/`
@@ -27,14 +29,14 @@ mvn spring-boot:run                                  # start the server on http:
 ```bash
 cd frontend
 npm install            # install dependencies (first time only)
-npm run dev            # start dev server on http://localhost:5173
+npm run dev            # start dev server on http://localhost:5173 (auto-runs ESLint first via predev hook)
 npm test               # run all Vitest tests once
 npm run test:coverage  # run tests with v8 coverage report (threshold ≥80%)
 npm run lint           # ESLint — check for errors
 npm run lint:fix       # ESLint — auto-fix fixable errors
 npm run format         # Prettier — reformat all files in src/
 npm run format:check   # Prettier — check formatting without writing
-npm run build          # production build to dist/
+npm run build          # production build to dist/ (auto-runs lint + format:check first via prebuild hook)
 ```
 
 ### Running the full stack
