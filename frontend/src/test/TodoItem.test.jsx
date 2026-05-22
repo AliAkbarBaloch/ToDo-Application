@@ -70,6 +70,24 @@ test('TodoItem shows Due Today label when due date is today', () => {
   expect(screen.getByText(/Due Today/)).toBeInTheDocument()
 })
 
+// ── NFR-03: XSS prevention ────────────────────────────────────────────────────
+
+test('TodoItem renders HTML tags in title as literal text, not as DOM elements', () => {
+  // React JSX escapes content by default — <script>…</script> must never
+  // be injected into the DOM as a real element.
+  const xssTitle = "<script>alert('xss')</script>"
+  const todo = { ...baseTodo, title: xssTitle }
+  render(<TodoItem todo={todo} onToggle={() => {}} onEdit={() => {}} onDelete={() => {}} />)
+
+  // The raw string must appear as visible text content
+  const titleEl = document.querySelector('.task-title')
+  expect(titleEl).toBeInTheDocument()
+  expect(titleEl.textContent).toBe(xssTitle)
+
+  // No actual <script> element (inline or external) must exist in the rendered output
+  expect(document.querySelector('.task-title script')).not.toBeInTheDocument()
+})
+
 test('TodoItem shows future due date label when due date is tomorrow', () => {
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
   const todo = { ...baseTodo, dueDate: tomorrow }
