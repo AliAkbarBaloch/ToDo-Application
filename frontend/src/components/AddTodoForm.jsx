@@ -80,6 +80,7 @@ export default function AddTodoForm({ onSubmit }) {
             }}
             placeholder="What do you want to accomplish?"
             maxLength={200}
+            autoFocus
           />
           {titleError && <span className="field-error">{titleError}</span>}
         </div>
