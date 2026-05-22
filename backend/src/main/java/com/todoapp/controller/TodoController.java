@@ -4,6 +4,7 @@ import com.todoapp.dto.TodoRequest;
 import com.todoapp.dto.TodoResponse;
 import com.todoapp.service.TodoService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,11 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 /**
- * MVC — Controller layer.
- * Handles HTTP requests only; all business logic lives in TodoService.
+ * MVC — Controller layer. Handles HTTP requests only; all business logic lives in TodoService.
  * RESTful design: resource-based URLs, standard HTTP verbs and status codes.
  */
 @RestController
@@ -55,8 +53,7 @@ public class TodoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<TodoResponse> updateTodo(
-            @PathVariable Long id,
-            @Valid @RequestBody TodoRequest request) {
+            @PathVariable Long id, @Valid @RequestBody TodoRequest request) {
         return ResponseEntity.ok(todoService.updateTodo(id, request));
     }
 

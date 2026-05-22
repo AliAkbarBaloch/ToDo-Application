@@ -1,33 +1,30 @@
 package com.todoapp.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.todoapp.dto.TodoRequest;
 import com.todoapp.dto.TodoResponse;
 import com.todoapp.model.Todo;
 import com.todoapp.repository.TodoRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class TodoServiceTest {
 
-    @Mock
-    private TodoRepository todoRepository;
+    @Mock private TodoRepository todoRepository;
 
-    @InjectMocks
-    private TodoService todoService;
+    @InjectMocks private TodoService todoService;
 
     // Helper: build a Todo without going through JPA lifecycle
     private Todo makeTodo(Long id, String title, Todo.Priority priority, LocalDateTime createdAt) {
@@ -133,7 +130,10 @@ class TodoServiceTest {
     void updateTodo_missingId_throwsEntityNotFoundException() {
         when(todoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> todoService.updateTodo(99L, makeRequest("x", Todo.Priority.LOW, null)))
+        assertThatThrownBy(
+                        () ->
+                                todoService.updateTodo(
+                                        99L, makeRequest("x", Todo.Priority.LOW, null)))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("99");
     }
@@ -245,9 +245,11 @@ class TodoServiceTest {
 
     @Test
     void getAllTodos_noFilter_returnsSortedByPriorityThenNewestFirst() {
-        Todo low  = makeTodo(1L, "Low task",    Todo.Priority.LOW,    LocalDateTime.now().minusHours(1));
-        Todo high = makeTodo(2L, "High task",   Todo.Priority.HIGH,   LocalDateTime.now());
-        Todo med  = makeTodo(3L, "Medium task", Todo.Priority.MEDIUM, LocalDateTime.now().minusHours(2));
+        Todo low = makeTodo(1L, "Low task", Todo.Priority.LOW, LocalDateTime.now().minusHours(1));
+        Todo high = makeTodo(2L, "High task", Todo.Priority.HIGH, LocalDateTime.now());
+        Todo med =
+                makeTodo(
+                        3L, "Medium task", Todo.Priority.MEDIUM, LocalDateTime.now().minusHours(2));
 
         when(todoRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(low, high, med));
 

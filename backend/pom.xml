@@ -100,7 +100,33 @@
                 </executions>
             </plugin>
 
-            <!-- Checkstyle: style and quality checks -->
+            <!-- Spotless: Java code formatter (Google Java Format, AOSP / 4-space style) -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <googleJavaFormat>
+                            <version>1.22.0</version>
+                            <!-- AOSP = 4-space indent, matches the project's existing style -->
+                            <style>AOSP</style>
+                        </googleJavaFormat>
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotless-check</id>
+                        <!-- validate runs before compile, so mvn spring-boot:run also checks -->
+                        <phase>validate</phase>
+                        <goals><goal>check</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Checkstyle: naming, imports, and code-quality rules -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -121,9 +147,9 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>checkstyle-verify</id>
-                        <!-- Runs as part of mvn verify (after tests pass) -->
-                        <phase>verify</phase>
+                        <id>checkstyle-validate</id>
+                        <!-- validate runs before compile, so mvn spring-boot:run also checks -->
+                        <phase>validate</phase>
                         <goals><goal>check</goal></goals>
                     </execution>
                 </executions>

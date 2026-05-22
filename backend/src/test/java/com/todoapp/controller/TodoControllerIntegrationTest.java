@@ -1,9 +1,14 @@
 package com.todoapp.controller;
 
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todoapp.dto.TodoRequest;
 import com.todoapp.model.Todo;
 import com.todoapp.repository.TodoRepository;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,25 +17,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.is;
-
-import java.time.LocalDate;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 class TodoControllerIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private TodoRepository todoRepository;
+    @Autowired private TodoRepository todoRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @BeforeEach
     void clearDatabase() {
@@ -68,9 +63,10 @@ class TodoControllerIntegrationTest {
     void createTodo_validRequest_returns201WithCreatedTodo() throws Exception {
         TodoRequest req = buildRequest("New task", Todo.Priority.MEDIUM, null);
 
-        mockMvc.perform(post("/api/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+        mockMvc.perform(
+                        post("/api/todos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("New task"))
                 .andExpect(jsonPath("$.priority").value("MEDIUM"));
@@ -80,9 +76,10 @@ class TodoControllerIntegrationTest {
     void createTodo_emptyTitle_returns400WithFieldError() throws Exception {
         TodoRequest req = buildRequest("", Todo.Priority.LOW, null);
 
-        mockMvc.perform(post("/api/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+        mockMvc.perform(
+                        post("/api/todos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.title").exists());
     }
@@ -91,9 +88,10 @@ class TodoControllerIntegrationTest {
     void createTodo_titleTooLong_returns400WithFieldError() throws Exception {
         TodoRequest req = buildRequest("A".repeat(201), Todo.Priority.LOW, null);
 
-        mockMvc.perform(post("/api/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+        mockMvc.perform(
+                        post("/api/todos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.title").exists());
     }
@@ -102,9 +100,10 @@ class TodoControllerIntegrationTest {
     void createTodo_pastDueDate_returns201WithWarning() throws Exception {
         TodoRequest req = buildRequest("Old task", Todo.Priority.LOW, LocalDate.now().minusDays(1));
 
-        mockMvc.perform(post("/api/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+        mockMvc.perform(
+                        post("/api/todos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.warning", is("due_date_in_past")));
     }
@@ -115,14 +114,12 @@ class TodoControllerIntegrationTest {
     void deleteTodo_existingId_returns204() throws Exception {
         Todo saved = persistTodo("To delete", false, Todo.Priority.LOW);
 
-        mockMvc.perform(delete("/api/todos/{id}", saved.getId()))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/todos/{id}", saved.getId())).andExpect(status().isNoContent());
     }
 
     @Test
     void deleteTodo_missingId_returns404() throws Exception {
-        mockMvc.perform(delete("/api/todos/{id}", 9999L))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/todos/{id}", 9999L)).andExpect(status().isNotFound());
     }
 
     // ── PATCH /api/todos/{id}/status ─────────────────────────────────────────
@@ -143,9 +140,10 @@ class TodoControllerIntegrationTest {
         Todo saved = persistTodo("Original", false, Todo.Priority.LOW);
         TodoRequest req = buildRequest("Updated title", Todo.Priority.HIGH, null);
 
-        mockMvc.perform(put("/api/todos/{id}", saved.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+        mockMvc.perform(
+                        put("/api/todos/{id}", saved.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated title"))
                 .andExpect(jsonPath("$.priority").value("HIGH"));
@@ -155,9 +153,10 @@ class TodoControllerIntegrationTest {
     void updateTodo_missingId_returns404() throws Exception {
         TodoRequest req = buildRequest("Title", Todo.Priority.MEDIUM, null);
 
-        mockMvc.perform(put("/api/todos/{id}", 9999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+        mockMvc.perform(
+                        put("/api/todos/{id}", 9999L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isNotFound());
     }
 
@@ -175,14 +174,13 @@ class TodoControllerIntegrationTest {
 
     @Test
     void getTodoById_missingId_returns404() throws Exception {
-        mockMvc.perform(get("/api/todos/{id}", 9999L))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/todos/{id}", 9999L)).andExpect(status().isNotFound());
     }
 
     @Test
     void getAllTodos_searchKeyword_returnsMatchingTodos() throws Exception {
         persistTodo("Buy groceries", false, Todo.Priority.LOW);
-        persistTodo("Walk the dog",  false, Todo.Priority.HIGH);
+        persistTodo("Walk the dog", false, Todo.Priority.HIGH);
 
         mockMvc.perform(get("/api/todos").param("search", "grocer"))
                 .andExpect(status().isOk())
@@ -192,8 +190,8 @@ class TodoControllerIntegrationTest {
 
     @Test
     void getAllTodos_statusFilter_returnsOnlyMatchingTodos() throws Exception {
-        persistTodo("Active task",    false, Todo.Priority.MEDIUM);
-        persistTodo("Completed task", true,  Todo.Priority.MEDIUM);
+        persistTodo("Active task", false, Todo.Priority.MEDIUM);
+        persistTodo("Completed task", true, Todo.Priority.MEDIUM);
 
         mockMvc.perform(get("/api/todos").param("status", "active"))
                 .andExpect(status().isOk())
@@ -203,7 +201,7 @@ class TodoControllerIntegrationTest {
 
     @Test
     void getAllTodos_withData_returnsTodosInPriorityOrder() throws Exception {
-        persistTodo("Low task",  false, Todo.Priority.LOW);
+        persistTodo("Low task", false, Todo.Priority.LOW);
         persistTodo("High task", false, Todo.Priority.HIGH);
 
         mockMvc.perform(get("/api/todos"))

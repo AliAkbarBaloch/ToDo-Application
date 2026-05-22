@@ -5,16 +5,15 @@ import com.todoapp.dto.TodoResponse;
 import com.todoapp.model.Todo;
 import com.todoapp.repository.TodoRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * MVC — Service layer (business logic).
- * No SQL or JPA details here — delegates all data access to TodoRepository.
+ * MVC — Service layer (business logic). No SQL or JPA details here — delegates all data access to
+ * TodoRepository.
  */
 @Service
 @Transactional
@@ -26,7 +25,7 @@ public class TodoService {
 
     private static final Comparator<Todo> BY_PRIORITY_THEN_CREATED =
             Comparator.comparingInt((Todo t) -> PRIORITY_ORDER.getOrDefault(t.getPriority(), 1))
-                      .thenComparing(Comparator.comparing(Todo::getCreatedAt).reversed());
+                    .thenComparing(Comparator.comparing(Todo::getCreatedAt).reversed());
 
     private final TodoRepository todoRepository;
 
@@ -46,10 +45,7 @@ public class TodoService {
             todos = todoRepository.findAllByOrderByCreatedAtDesc();
         }
         // US-08: sort by priority (HIGH → MEDIUM → LOW), then newest first within each group
-        return todos.stream()
-                .sorted(BY_PRIORITY_THEN_CREATED)
-                .map(TodoResponse::from)
-                .toList();
+        return todos.stream().sorted(BY_PRIORITY_THEN_CREATED).map(TodoResponse::from).toList();
     }
 
     public TodoResponse getTodoById(Long id) {
@@ -59,7 +55,8 @@ public class TodoService {
     public TodoResponse createTodo(TodoRequest request) {
         Todo todo = new Todo();
         applyRequest(todo, request);
-        // MN-03: use fromWithWarning so response includes warning:"due_date_in_past" when applicable
+        // MN-03: use fromWithWarning so response includes warning:"due_date_in_past" when
+        // applicable
         return TodoResponse.fromWithWarning(todoRepository.save(todo));
     }
 
@@ -92,7 +89,8 @@ public class TodoService {
     }
 
     private Todo findOrThrow(Long id) {
-        return todoRepository.findById(id)
+        return todoRepository
+                .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Todo not found: " + id));
     }
 }

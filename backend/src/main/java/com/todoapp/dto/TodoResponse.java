@@ -1,14 +1,13 @@
 package com.todoapp.dto;
 
 import com.todoapp.model.Todo;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 /**
- * DTO for outgoing API responses.
- * Never expose JPA entities directly — this controls what the client sees.
+ * DTO for outgoing API responses. Never expose JPA entities directly — this controls what the
+ * client sees.
  */
 public class TodoResponse {
 
@@ -20,6 +19,7 @@ public class TodoResponse {
     private LocalDate dueDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
     /** MN-03: set to "due_date_in_past" on create when dueDate < today, otherwise null. */
     private String warning;
 
@@ -45,13 +45,39 @@ public class TodoResponse {
         return r;
     }
 
-    public Long getId() { return id; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public boolean isCompleted() { return completed; }
-    public Todo.Priority getPriority() { return priority; }
-    public LocalDate getDueDate() { return dueDate; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public String getWarning() { return warning; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public Todo.Priority getPriority() {
+        return priority;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getWarning() {
+        return warning;
+    }
 }
