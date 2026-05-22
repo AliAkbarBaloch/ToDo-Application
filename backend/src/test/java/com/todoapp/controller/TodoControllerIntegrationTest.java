@@ -199,6 +199,50 @@ class TodoControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].title").value("Active task"));
     }
 
+    // ── NFR-03: XSS / input sanitisation ────────────────────────────────────────
+
+    @Test
+    void createTodo_scriptTagInTitle_returns201AndStoredAsLiteralText() throws Exception {
+        // React escapes JSX content by default; the server must store and return the raw
+        // string unchanged so the client can display it as literal text (not execute it).
+        String xssTitle = "<script>alert('xss')</script>";
+        TodoRequest req = buildRequest(xssTitle, Todo.Priority.LOW, null);
+
+        mockMvc.perform(
+                        post("/api/todos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title", is(xssTitle)));
+    }
+
+    @Test
+    void createTodo_htmlInDescription_returns201AndStoredAsLiteralText() throws Exception {
+        String xssDesc = "<img src=x onerror=alert(1)>";
+        TodoRequest req = buildRequest("Normal title", Todo.Priority.LOW, null);
+        req.setDescription(xssDesc);
+
+        mockMvc.perform(
+                        post("/api/todos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.description", is(xssDesc)));
+    }
+
+    @Test
+    void createTodo_descriptionTooLong_returns400WithFieldError() throws Exception {
+        TodoRequest req = buildRequest("Title", Todo.Priority.LOW, null);
+        req.setDescription("A".repeat(2001));
+
+        mockMvc.perform(
+                        post("/api/todos")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.description").exists());
+    }
+
     @Test
     void getAllTodos_withData_returnsTodosInPriorityOrder() throws Exception {
         persistTodo("Low task", false, Todo.Priority.LOW);
