@@ -47,6 +47,61 @@ The H2 console is available at `http://localhost:8080/h2-console` (JDBC URL: `jd
 
 ---
 
+## CI Pipeline (GitHub Actions)
+
+Workflow file: `.github/workflows/ci.yml`
+Triggers: every push and pull request to `main`.
+Both jobs run in parallel on `ubuntu-latest`.
+
+### Backend job — `mvn -B verify`
+
+Single Maven command covers all four CI requirements in sequence:
+
+| Maven phase | What runs |
+|---|---|
+| `validate` | **Spotless** format check (Google Java Format AOSP) |
+| `validate` | **Checkstyle** lint (naming, imports, method length, …) |
+| `compile` | `javac` — fails on any compilation error |
+| `test` | **JUnit 5** (32 tests) + JaCoCo coverage report |
+| `verify` | **JaCoCo gate** — build fails if line coverage < 80 % |
+
+### Frontend job — explicit steps
+
+| Step | Command | Gate |
+|---|---|---|
+| Install | `npm ci` | exact lockfile install |
+| Lint | `npm run lint` | ESLint 0 errors |
+| Format check | `npm run format:check` | Prettier — all files clean |
+| Test + coverage | `npm run test:coverage` | Vitest 19 tests; statements ≥ 80 %, lines ≥ 80 % |
+| Build | `npm run build` | Vite production build succeeds |
+
+> **Note:** `package-lock.json` must be kept up-to-date with `npm install --package-lock-only`
+> when adding/upgrading packages, so `npm ci` on Linux runners includes all platform binaries.
+
+---
+
+## Linters & Formatters
+
+### Backend
+
+| Tool | Config file | Bound to |
+|---|---|---|
+| **Spotless** (Google Java Format 1.22.0, AOSP style) | `pom.xml` | `validate` phase — runs on every `mvn` command |
+| **Checkstyle** 10.18.1 | `backend/checkstyle.xml` | `validate` phase — runs on every `mvn` command |
+
+Fix formatting: `mvn spotless:apply`. Checkstyle violations must be fixed manually.
+
+### Frontend
+
+| Tool | Config file | Bound to |
+|---|---|---|
+| **ESLint** 10 (react-hooks plugin) | `frontend/eslint.config.js` | `predev` hook → auto-runs on `npm run dev` |
+| **Prettier** 3 (singleQuote, no semi, tabWidth 2) | `frontend/.prettierrc` | `prebuild` hook → auto-runs on `npm run build` |
+
+Fix formatting: `npm run format`. Fix lint: `npm run lint:fix`.
+
+---
+
 ## Architecture: MVC + Repository Pattern
 
 ```

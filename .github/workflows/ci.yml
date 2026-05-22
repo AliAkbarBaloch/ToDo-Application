@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [main]
 
+# Use Node.js 24 as the Actions-runner runtime (required from June 2026 onward)
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # ── Backend ────────────────────────────────────────────────────────────────
   backend:
