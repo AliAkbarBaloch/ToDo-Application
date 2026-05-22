@@ -2,6 +2,14 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AddTodoForm from '../components/AddTodoForm'
 
+// ── NFR-02: auto-focus ────────────────────────────────────────────────────────
+
+test('AddTodoForm auto-focuses the title input on mount', () => {
+  render(<AddTodoForm onSubmit={vi.fn()} />)
+
+  expect(screen.getByLabelText(/task title/i)).toHaveFocus()
+})
+
 // ── due date warning ──────────────────────────────────────────────────────────
 
 test('AddTodoForm shows past-date warning only after date field loses focus', async () => {
