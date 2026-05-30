@@ -79,7 +79,7 @@ Single Maven command covers all CI requirements in sequence:
 | `validate` | **Spotless** format check (Google Java Format AOSP) |
 | `validate` | **Checkstyle** lint (naming, imports, method length, …) |
 | `compile` | `javac` — fails on any compilation error |
-| `test` | **JUnit 5** (35 tests) + JaCoCo coverage report |
+| `test` | **JUnit 5** (36 tests) + JaCoCo coverage report |
 | `verify` | **JaCoCo gate** — build fails if line coverage < 80 % |
 
 ### Frontend job — explicit steps
@@ -163,10 +163,10 @@ All API state lives in `App.jsx`. Child components receive data and callbacks as
 | Class | Type | Tests | What it covers |
 |---|---|---|---|
 | `service/TodoServiceTest.java` | Unit (Mockito) | 16 | All `TodoService` methods with mocked repository |
-| `controller/TodoControllerIntegrationTest.java` | Integration (`@SpringBootTest`) | 18 | All HTTP endpoints + XSS + validation against in-memory H2 |
+| `controller/TodoControllerIntegrationTest.java` | Integration (`@SpringBootTest`) | 19 | All HTTP endpoints + XSS + validation + combined search/filter against in-memory H2 |
 | `TodoApplicationTests.java` | Smoke | 1 | Spring context loads |
 
-Total: **35 tests** (run with `mvn test`)
+Total: **36 tests** (run with `mvn test`)
 
 #### System tests (`backend/src/test/java/com/todoapp/system/`)
 
