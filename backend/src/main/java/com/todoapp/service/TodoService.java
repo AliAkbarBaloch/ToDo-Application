@@ -37,6 +37,13 @@ public class TodoService {
         List<Todo> todos;
         if (search != null && !search.isBlank()) {
             todos = todoRepository.searchByKeyword(search.trim());
+            // US-09: search and status filter must work together (AC: "only active tasks
+            // matching the keyword are shown when the Active filter is active")
+            if ("active".equalsIgnoreCase(status)) {
+                todos = todos.stream().filter(t -> !t.isCompleted()).toList();
+            } else if ("completed".equalsIgnoreCase(status)) {
+                todos = todos.stream().filter(Todo::isCompleted).toList();
+            }
         } else if ("active".equalsIgnoreCase(status)) {
             todos = todoRepository.findByCompletedOrderByCreatedAtDesc(false);
         } else if ("completed".equalsIgnoreCase(status)) {
