@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
  *   <li>A task marked as completed retains its status after a reload.
  * </ul>
  *
- * <p>Note: The test uses the in-memory H2 database shared for the duration of the server
- * process. A full server-restart test requires a file-based database and is covered by the
- * H2 file configuration in production.
+ * <p>Note: The test uses the in-memory H2 database shared for the duration of the server process. A
+ * full server-restart test requires a file-based database and is covered by the H2 file
+ * configuration in production.
  */
 class US10PersistenceSystemTest extends SystemTestBase {
 

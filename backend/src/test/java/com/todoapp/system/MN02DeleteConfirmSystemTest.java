@@ -41,7 +41,6 @@ class MN02DeleteConfirmSystemTest extends SystemTestBase {
         page.locator(".btn-delete").first().click();
 
         assertThat(page.locator(".task-item")).hasCount(1);
-        assertThat(page.locator(".task-item .task-title").first())
-                .hasText("Should survive cancel");
+        assertThat(page.locator(".task-item .task-title").first()).hasText("Should survive cancel");
     }
 }
