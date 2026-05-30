@@ -2,6 +2,7 @@ package com.todoapp.system;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.microsoft.playwright.Locator;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -17,30 +18,40 @@ import org.junit.jupiter.api.Test;
  */
 class US07FilterSystemTest extends SystemTestBase {
 
+    /** Marks the task whose title matches {@code title} as completed via its checkbox. */
+    private void completeTaskByTitle(String title) {
+        page.locator(".task-item")
+                .filter(new Locator.FilterOptions().setHasText(title))
+                .locator(".task-checkbox")
+                .click();
+    }
+
     @Test
     void filter_activeOnly_showsOnlyActiveTasks() {
-        addTask("Active task");
-        addTask("Task to complete");
-        // Mark the second task as completed
-        page.locator(".task-checkbox").last().click();
+        addTask("Keep me active");
+        addTask("Complete me");
+        completeTaskByTitle("Complete me");
 
-        page.locator(".filter-btn", new com.microsoft.playwright.Page.LocatorOptions()
-                        .setHasText("Active"))
+        page.locator(
+                        ".filter-btn",
+                        new com.microsoft.playwright.Page.LocatorOptions().setHasText("Active"))
                 .click();
         page.waitForCondition(() -> page.locator(".task-item").count() == 1);
 
         assertThat(page.locator(".task-item")).hasCount(1);
-        assertThat(page.locator(".task-item .task-title").first()).hasText("Active task");
+        assertThat(page.locator(".task-item.completed")).hasCount(0);
+        assertThat(page.locator(".task-item .task-title").first()).hasText("Keep me active");
     }
 
     @Test
     void filter_completedOnly_showsOnlyCompletedTasks() {
-        addTask("Active task");
-        addTask("Task to complete");
-        page.locator(".task-checkbox").last().click();
+        addTask("Keep me active");
+        addTask("Complete me");
+        completeTaskByTitle("Complete me");
 
-        page.locator(".filter-btn", new com.microsoft.playwright.Page.LocatorOptions()
-                        .setHasText("Completed"))
+        page.locator(
+                        ".filter-btn",
+                        new com.microsoft.playwright.Page.LocatorOptions().setHasText("Completed"))
                 .click();
         page.waitForCondition(() -> page.locator(".task-item").count() == 1);
 
@@ -52,14 +63,15 @@ class US07FilterSystemTest extends SystemTestBase {
     void filter_all_showsAllTasks() {
         addTask("Task A");
         addTask("Task B");
-        page.locator(".task-checkbox").first().click();
+        completeTaskByTitle("Task A");
 
-        // Switch to Active then back to All
-        page.locator(".filter-btn", new com.microsoft.playwright.Page.LocatorOptions()
-                        .setHasText("Active"))
+        page.locator(
+                        ".filter-btn",
+                        new com.microsoft.playwright.Page.LocatorOptions().setHasText("Active"))
                 .click();
-        page.locator(".filter-btn", new com.microsoft.playwright.Page.LocatorOptions()
-                        .setHasText("All"))
+        page.locator(
+                        ".filter-btn",
+                        new com.microsoft.playwright.Page.LocatorOptions().setHasText("All"))
                 .click();
         page.waitForCondition(() -> page.locator(".task-item").count() == 2);
 
