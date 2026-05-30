@@ -16,12 +16,29 @@ mvn compile                                          # compile (auto-runs Spotle
 mvn spotless:apply                                   # auto-format all Java files with Google Java Format (AOSP 4-space)
 mvn spotless:check                                   # check formatting without writing
 mvn checkstyle:check                                 # run Checkstyle linter only
-mvn test                                             # run all tests with JaCoCo coverage report
+mvn test                                             # run all unit + integration tests (excludes system tests)
 mvn test -Dtest=ClassName                            # run a single test class
 mvn test -Dtest=ClassName#methodName                 # run a single test method
 mvn verify                                           # run tests + enforce ≥80% line coverage
 mvn org.pitest:pitest-maven:mutationCoverage         # run mutation tests (target ≥70%)
 mvn spring-boot:run                                  # start the server (auto-runs Spotless + Checkstyle first)
+```
+
+#### System (Playwright E2E) tests — run from `backend/`
+
+```bash
+# One-time setup (installs Chromium browser binaries):
+mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI \
+    -Dexec.args="install chromium" -Dexec.classpathScope=test
+
+# Build the frontend first (outputs to frontend/dist/ which Maven copies to Spring Boot):
+cd ../frontend && npm run build && cd ../backend
+
+# Run all 37 system tests (starts Spring Boot internally on a random port):
+mvn test -Psystem-tests
+
+# Run a single system test class:
+mvn test -Psystem-tests -Dtest=US01CreateTaskSystemTest
 ```
 
 ### Frontend (React / Vite) — run from `frontend/`
@@ -149,7 +166,30 @@ All API state lives in `App.jsx`. Child components receive data and callbacks as
 | `controller/TodoControllerIntegrationTest.java` | Integration (`@SpringBootTest`) | 18 | All HTTP endpoints + XSS + validation against in-memory H2 |
 | `TodoApplicationTests.java` | Smoke | 1 | Spring context loads |
 
-Total: **35 tests**
+Total: **35 tests** (run with `mvn test`)
+
+#### System tests (`backend/src/test/java/com/todoapp/system/`)
+
+Playwright E2E tests (`@Tag("SystemTest")`) — excluded from regular `mvn test`, run with `mvn test -Psystem-tests`.
+Spring Boot starts on a random port; Chromium renders the React app served from `target/classes/public/`.
+
+| Class | User Story | Tests |
+|---|---|---|
+| `US01CreateTaskSystemTest` | US-01 Create Task | 3 |
+| `US02ViewTasksSystemTest` | US-02 View Tasks | 3 |
+| `US03MarkCompleteSystemTest` | US-03 Mark Complete | 3 |
+| `US04EditTaskSystemTest` | US-04 Edit Task | 3 |
+| `US05DeleteTaskSystemTest` | US-05 Delete Task | 2 |
+| `US06DueDateSystemTest` | US-06 Due Date | 4 |
+| `US07FilterSystemTest` | US-07 Filter by Status | 3 |
+| `US08PrioritySystemTest` | US-08 Priority | 3 |
+| `US09SearchSystemTest` | US-09 Search | 4 |
+| `US10PersistenceSystemTest` | US-10 Persistence | 2 |
+| `MN01EmptyTitleSystemTest` | MN-01 Empty Title | 2 |
+| `MN02DeleteConfirmSystemTest` | MN-02 Delete Confirmation | 2 |
+| `MN03PastDateSystemTest` | MN-03 Past Date Warning | 3 |
+
+Total: **37 system tests**
 
 Integration tests use `src/test/resources/application.properties` which configures an in-memory H2 (`jdbc:h2:mem:testdb`) — the production file-based database is never touched by tests.
 
