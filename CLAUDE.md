@@ -188,8 +188,11 @@ Spring Boot starts on a random port; Chromium renders the React app served from 
 | `MN01EmptyTitleSystemTest` | MN-01 Empty Title | 2 |
 | `MN02DeleteConfirmSystemTest` | MN-02 Delete Confirmation | 2 |
 | `MN03PastDateSystemTest` | MN-03 Past Date Warning | 3 |
+| `NFR01PageLoadSystemTest` | NFR-01 Page Load Performance | 4 |
+| `NFR02UsabilitySystemTest` | NFR-02 First-Time Usability | 5 |
+| `NFR03XssPreventionSystemTest` | NFR-03 XSS Prevention | 3 |
 
-Total: **37 system tests**
+Total: **47 system tests**
 
 Integration tests use `src/test/resources/application.properties` which configures an in-memory H2 (`jdbc:h2:mem:testdb`) — the production file-based database is never touched by tests.
 
