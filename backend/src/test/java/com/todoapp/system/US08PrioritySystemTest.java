@@ -39,7 +39,10 @@ class US08PrioritySystemTest extends SystemTestBase {
         addTask("High task", "HIGH", null);
         addTask("Medium task", "MEDIUM", null);
 
-        // The service sorts HIGH → MEDIUM → LOW regardless of creation order
+        // Reload so GET /todos returns the server-sorted list (sort is applied server-side)
+        page.navigate(baseUrl());
+        page.waitForCondition(() -> page.locator(".task-item").count() == 3);
+
         assertThat(page.locator(".task-item .task-title").nth(0)).hasText("High task");
         assertThat(page.locator(".task-item .task-title").nth(1)).hasText("Medium task");
         assertThat(page.locator(".task-item .task-title").nth(2)).hasText("Low task");
