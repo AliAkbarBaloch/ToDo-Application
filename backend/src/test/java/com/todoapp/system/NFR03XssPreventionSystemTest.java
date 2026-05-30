@@ -22,10 +22,11 @@ class NFR03XssPreventionSystemTest extends SystemTestBase {
         String xssTitle = "<script>alert('xss')</script>";
 
         boolean[] alertFired = {false};
-        page.onDialog(dialog -> {
-            alertFired[0] = true;
-            dialog.dismiss();
-        });
+        page.onDialog(
+                dialog -> {
+                    alertFired[0] = true;
+                    dialog.dismiss();
+                });
 
         addTask(xssTitle);
 

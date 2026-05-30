@@ -28,10 +28,11 @@ class NFR02UsabilitySystemTest extends SystemTestBase {
     void emptyTitleSubmit_showsInlineError_notBrowserAlert() {
         boolean[] alertFired = {false};
         // Register a dialog handler — if the browser shows an alert, the test must fail
-        page.onDialog(dialog -> {
-            alertFired[0] = true;
-            dialog.dismiss();
-        });
+        page.onDialog(
+                dialog -> {
+                    alertFired[0] = true;
+                    dialog.dismiss();
+                });
 
         page.locator("button[type='submit']").click();
 
@@ -64,18 +65,19 @@ class NFR02UsabilitySystemTest extends SystemTestBase {
 
         // The Delete button must be reachable by Tab (keyboard accessibility)
         assertThat(
-                page.getByRole(AriaRole.BUTTON,
-                        new com.microsoft.playwright.Page.GetByRoleOptions()
-                                .setName("Delete")))
+                        page.getByRole(
+                                AriaRole.BUTTON,
+                                new com.microsoft.playwright.Page.GetByRoleOptions()
+                                        .setName("Delete")))
                 .isVisible();
     }
 
     @Test
     void allInputsHavePlaceholderText() {
         // Placeholder text helps first-time users understand what to type
-        assertThat(page.locator("#new-title")).hasAttribute("placeholder",
-                "What do you want to accomplish?");
-        assertThat(page.locator("#new-desc")).hasAttribute("placeholder",
-                "Add more details about this task...");
+        assertThat(page.locator("#new-title"))
+                .hasAttribute("placeholder", "What do you want to accomplish?");
+        assertThat(page.locator("#new-desc"))
+                .hasAttribute("placeholder", "Add more details about this task...");
     }
 }
