@@ -1,6 +1,7 @@
 package com.todoapp.system;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ class MN02DeleteConfirmSystemTest extends SystemTestBase {
         page.locator(".btn-delete").first().click();
 
         page.waitForCondition(() -> page.locator(".task-item").count() == 0);
-        assert dialogShown[0] : "Confirmation dialog must appear before deletion";
+        assertTrue(dialogShown[0], "Confirmation dialog must appear before deletion");
     }
 
     @Test

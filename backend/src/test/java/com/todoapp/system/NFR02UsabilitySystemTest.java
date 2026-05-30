@@ -1,6 +1,7 @@
 package com.todoapp.system;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class NFR02UsabilitySystemTest extends SystemTestBase {
         // Error must be an inline element, not a native browser dialog
         assertThat(page.locator(".field-error")).isVisible();
         assertThat(page.locator(".field-error")).hasText("Title is required");
-        assert !alertFired[0] : "Error must not be shown as a browser alert dialog";
+        assertFalse(alertFired[0], "Error must not be shown as a browser alert dialog");
     }
 
     @Test

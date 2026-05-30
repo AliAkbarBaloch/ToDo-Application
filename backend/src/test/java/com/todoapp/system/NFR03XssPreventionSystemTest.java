@@ -1,6 +1,7 @@
 package com.todoapp.system;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +34,7 @@ class NFR03XssPreventionSystemTest extends SystemTestBase {
         // Title must appear as visible plain text
         assertThat(page.locator(".task-item .task-title").first()).hasText(xssTitle);
         // No browser alert must have fired
-        assert !alertFired[0] : "XSS alert must not execute";
+        assertFalse(alertFired[0], "XSS alert must not execute");
     }
 
     @Test
