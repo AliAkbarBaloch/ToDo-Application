@@ -37,22 +37,17 @@ class NFR01PageLoadSystemTest extends SystemTestBase {
     void apiEndpoint_with100Tasks_respondsWithin500ms() {
         seedTasks(100);
 
-        double[] responseMillis = {-1};
-        page.onResponse(
-                response -> {
-                    String url = response.url();
-                    if (url.contains("/api/todos") && !url.contains("/status")) {
-                        // var avoids the Request.Timing nested-type resolution in some IDEs
-                        var timing = response.request().timing();
-                        double elapsed = timing.responseEnd - timing.requestStart;
-                        if (elapsed >= 0) responseMillis[0] = elapsed;
-                    }
-                });
+        // page.waitForResponse blocks until the matching response arrives;
+        // wall-clock measures total time from navigate() to API response received.
+        long start = System.currentTimeMillis();
+        page.waitForResponse(
+                response ->
+                        response.url().contains("/api/todos")
+                                && !response.url().contains("/status"),
+                () -> page.navigate(baseUrl()));
+        long elapsed = System.currentTimeMillis() - start;
 
-        page.navigate(baseUrl());
-        page.waitForCondition(() -> responseMillis[0] >= 0);
-
-        assertThat(responseMillis[0]).as("GET /api/todos response time (ms)").isLessThan(500);
+        assertThat(elapsed).as("Time until /api/todos responded (ms)").isLessThan(500);
     }
 
     @Test
