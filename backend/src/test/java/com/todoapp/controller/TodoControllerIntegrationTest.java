@@ -254,4 +254,21 @@ class TodoControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].title").value("High task"))
                 .andExpect(jsonPath("$[1].title").value("Low task"));
     }
+
+    // ── US-09: search + status filter combined ───────────────────────────────
+
+    @Test
+    void getAllTodos_searchAndStatusFilter_returnOnlyMatchingActiveTask() throws Exception {
+        // "Buy milk" active, "Buy milk done" completed — searching "milk" with Active filter
+        // must return ONLY the active one (US-09 AC: search and filter work together)
+        Todo active = persistTodo("Buy milk", false, Todo.Priority.LOW);
+        active.setTitle("Buy milk");
+        Todo completed = persistTodo("Buy milk done", true, Todo.Priority.LOW);
+
+        mockMvc.perform(get("/api/todos").param("search", "milk").param("status", "active"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("Buy milk"))
+                .andExpect(jsonPath("$[0].completed").value(false));
+    }
 }
