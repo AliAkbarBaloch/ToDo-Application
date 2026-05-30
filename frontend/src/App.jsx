@@ -160,8 +160,17 @@ export default function App() {
           {!loading && !error && todos.length === 0 && (
             <div className="empty-state">
               <div className="empty-state-icon">📭</div>
-              <h3>No Tasks Yet</h3>
-              <p>No tasks yet. Add one above!</p>
+              {search.trim() ? (
+                <>
+                  <h3>No Results</h3>
+                  <p>No tasks match your search.</p>
+                </>
+              ) : (
+                <>
+                  <h3>No Tasks Yet</h3>
+                  <p>No tasks yet. Add one above!</p>
+                </>
+              )}
             </div>
           )}
 
