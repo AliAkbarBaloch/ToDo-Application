@@ -2,6 +2,7 @@ package com.todoapp.system;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -24,7 +25,6 @@ class US04EditTaskSystemTest extends SystemTestBase {
         page.locator(".btn-edit").first().click();
         page.waitForSelector(".edit-form");
 
-        // The edit form input must contain the current task title
         assertThat(page.locator(".edit-form input[type='text']").first())
                 .hasValue("Original title");
     }
@@ -49,8 +49,10 @@ class US04EditTaskSystemTest extends SystemTestBase {
         page.locator(".btn-edit").first().click();
         page.waitForSelector(".edit-form");
         page.locator(".edit-form input[type='text']").first().fill("Modified");
-        page.getByRole("button", new com.microsoft.playwright.Page.GetByRoleOptions()
-                .setName("Cancel")).click();
+        page.getByRole(
+                        AriaRole.BUTTON,
+                        new com.microsoft.playwright.Page.GetByRoleOptions().setName("Cancel"))
+                .click();
 
         assertThat(page.locator(".task-item .task-title").first()).hasText("Unchanged title");
     }
