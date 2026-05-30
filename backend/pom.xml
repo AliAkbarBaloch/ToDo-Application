@@ -163,13 +163,16 @@
                 </executions>
             </plugin>
 
-            <!-- Surefire: exclude @Tag("SystemTest") from regular mvn test.
-                 Run system tests separately: mvn test -Dgroups=SystemTest -->
+            <!-- Surefire: exclude system tests from regular mvn test.
+                 Run system tests separately with the 'system-tests' profile:
+                   mvn test -Psystem-tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <excludedGroups>SystemTest</excludedGroups>
+                    <excludes>
+                        <exclude>**/system/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
@@ -226,4 +229,28 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Run ONLY system (Playwright E2E) tests:  mvn test -Psystem-tests -->
+        <profile>
+            <id>system-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>nothing</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/system/**Test.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
