@@ -2,7 +2,6 @@ package com.todoapp.system;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.microsoft.playwright.Request;
 import com.todoapp.model.Todo;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,8 @@ class NFR01PageLoadSystemTest extends SystemTestBase {
                 response -> {
                     String url = response.url();
                     if (url.contains("/api/todos") && !url.contains("/status")) {
-                        Request.Timing timing = response.request().timing();
+                        // var avoids the Request.Timing nested-type resolution in some IDEs
+                        var timing = response.request().timing();
                         double elapsed = timing.responseEnd - timing.requestStart;
                         if (elapsed >= 0) responseMillis[0] = elapsed;
                     }
@@ -52,9 +52,7 @@ class NFR01PageLoadSystemTest extends SystemTestBase {
         page.navigate(baseUrl());
         page.waitForCondition(() -> responseMillis[0] >= 0);
 
-        assertThat(responseMillis[0])
-                .as("GET /api/todos response time (ms)")
-                .isLessThan(500);
+        assertThat(responseMillis[0]).as("GET /api/todos response time (ms)").isLessThan(500);
     }
 
     @Test
@@ -88,9 +86,7 @@ class NFR01PageLoadSystemTest extends SystemTestBase {
             page.navigate(baseUrl());
             page.waitForSelector(".task-item");
             long elapsed = System.currentTimeMillis() - start;
-            assertThat(elapsed)
-                    .as("Consecutive load #" + i + " (ms)")
-                    .isLessThan(2000);
+            assertThat(elapsed).as("Consecutive load #" + i + " (ms)").isLessThan(2000);
         }
     }
 }
