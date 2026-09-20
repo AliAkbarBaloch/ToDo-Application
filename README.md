@@ -35,15 +35,37 @@ A full-stack task management application built with Spring Boot and React, struc
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    User[User / Browser] --> React[React 18 + Vite]
-    React -->|REST / JSON| Controller[TodoController]
-
-    Controller --> Service[TodoService]
-    Controller --> Handler[GlobalExceptionHandler]
-    Service --> Repository[TodoRepository - Spring Data JPA]
-    Repository --> H2[(H2 Database - file based)]
+```text
+User / Browser
+      |
+      v
++-------------------+
+|  React 18 + Vite  |
++-------------------+
+      |
+   REST / JSON
+      |
+      v
++---------------------------------------+
+|            Spring Boot Backend        |
+|                                       |
+|  TodoController                       |
+|       |                               |
+|       +----> GlobalExceptionHandler   |
+|       |                               |
+|       v                               |
+|  TodoService                          |
+|       |                               |
+|       v                               |
+|  TodoRepository                       |
+|  (Spring Data JPA)                    |
++--------------------|------------------+
+                     |
+                     v
+              +--------------+
+              | H2 Database  |
+              | file-based   |
+              +--------------+
 ```
 
 **Frontend.** `App.jsx` owns all server state (`todos`, `filter`, `search`, `editingId`) and every `fetch` call. Child components (`AddTodoForm`, `EditTodoForm`, `TodoItem`, `FilterBar`) are presentational — they receive data and callback props and hold no server state of their own. In development, Vite's dev server proxies `/api/*` to `localhost:8080`, so no CORS configuration is needed; in production the built frontend is served as static resources from Spring Boot itself, and `@CrossOrigin` on the controller only permits the Vite dev origin.
