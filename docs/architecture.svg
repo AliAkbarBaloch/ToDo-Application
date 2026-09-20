@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 810" width="800" height="810" role="img" aria-labelledby="title desc">
+  <title id="title">Todo Application Architecture</title>
+  <desc id="desc">React 18 + Vite frontend communicates over REST/JSON with a Spring Boot backend. TodoController delegates to TodoService, which uses TodoRepository (Spring Data JPA) to persist data in a file-based H2 database. TodoRequest/TodoResponse DTOs, Bean Validation, and GlobalExceptionHandler form the API boundary around the controller.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#24292f"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="800" height="810" fill="#ffffff"/>
+
+  <!-- ===================== SHAPES ===================== -->
+  <g font-family="Helvetica, Arial, sans-serif">
+
+    <!-- User / Browser -->
+    <rect x="280" y="24" width="240" height="56" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.5"/>
+
+    <!-- React frontend -->
+    <rect x="260" y="118" width="280" height="64" rx="8" fill="#eef2ff" stroke="#3730a3" stroke-width="1.5"/>
+
+    <!-- Backend container -->
+    <rect x="60" y="228" width="680" height="416" rx="12" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+
+    <!-- TodoController -->
+    <rect x="280" y="278" width="240" height="54" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+
+    <!-- TodoService -->
+    <rect x="280" y="360" width="240" height="54" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+
+    <!-- TodoRepository -->
+    <rect x="280" y="442" width="240" height="66" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+
+    <!-- API boundary divider -->
+    <line x1="90" y1="524" x2="710" y2="524" stroke="#c9d1d9" stroke-width="1"/>
+
+    <!-- API Contracts chip -->
+    <rect x="100" y="560" width="270" height="64" rx="8" fill="#ffffff" stroke="#8c959f" stroke-width="1.2" stroke-dasharray="5,4"/>
+
+    <!-- Error Handling chip -->
+    <rect x="430" y="560" width="270" height="64" rx="8" fill="#ffffff" stroke="#8c959f" stroke-width="1.2" stroke-dasharray="5,4"/>
+
+    <!-- H2 cylinder -->
+    <ellipse cx="400" cy="774" rx="120" ry="16" fill="#e6f7ec" stroke="#1a7f37" stroke-width="1.5"/>
+    <rect x="280" y="684" width="240" height="90" fill="#e6f7ec" stroke="none"/>
+    <line x1="280" y1="684" x2="280" y2="774" stroke="#1a7f37" stroke-width="1.5"/>
+    <line x1="520" y1="684" x2="520" y2="774" stroke="#1a7f37" stroke-width="1.5"/>
+    <ellipse cx="400" cy="684" rx="120" ry="16" fill="#e6f7ec" stroke="#1a7f37" stroke-width="1.5"/>
+  </g>
+
+  <!-- ===================== CONNECTORS ===================== -->
+  <g stroke="#24292f" stroke-width="2" fill="none">
+    <line x1="400" y1="80" x2="400" y2="115" marker-end="url(#arrow)"/>
+    <line x1="400" y1="182" x2="400" y2="225" marker-end="url(#arrow)"/>
+    <line x1="400" y1="332" x2="400" y2="359" marker-end="url(#arrow)"/>
+    <line x1="400" y1="414" x2="400" y2="441" marker-end="url(#arrow)"/>
+    <line x1="400" y1="508" x2="400" y2="681" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- ===================== LABELS ===================== -->
+  <g font-family="Helvetica, Arial, sans-serif" fill="#24292f">
+
+    <text x="400" y="58" text-anchor="middle" font-size="14" font-weight="700">User / Browser</text>
+
+    <text x="400" y="146" text-anchor="middle" font-size="14" font-weight="700">React 18 + Vite</text>
+    <text x="400" y="165" text-anchor="middle" font-size="11" fill="#57606a">Frontend (SPA)</text>
+
+    <text x="414" y="200" font-size="12" font-weight="600">REST / JSON</text>
+    <text x="414" y="214" font-size="9.5" fill="#6e7781">dev: Vite proxy to :8080 &#183; prod: served by Spring Boot</text>
+
+    <text x="400" y="256" text-anchor="middle" font-size="15" font-weight="700">Spring Boot Backend</text>
+
+    <text x="400" y="302" text-anchor="middle" font-size="13" font-weight="700" fill="#0b3a8c">TodoController</text>
+    <text x="400" y="319" text-anchor="middle" font-size="10.5" fill="#3355aa">HTTP / API boundary</text>
+
+    <text x="400" y="384" text-anchor="middle" font-size="13" font-weight="700" fill="#0b3a8c">TodoService</text>
+    <text x="400" y="401" text-anchor="middle" font-size="10" fill="#3355aa">Sort &#183; filter &#183; search &#183; warnings</text>
+
+    <text x="400" y="470" text-anchor="middle" font-size="13" font-weight="700" fill="#0b3a8c">TodoRepository</text>
+    <text x="400" y="488" text-anchor="middle" font-size="11" fill="#3355aa">Spring Data JPA</text>
+
+    <text x="100" y="546" font-size="11.5" font-style="italic" fill="#57606a">API Boundary (Controller-level)</text>
+
+    <text x="235" y="582" text-anchor="middle" font-size="12" font-weight="700">API Contracts</text>
+    <text x="235" y="600" text-anchor="middle" font-size="10.5" fill="#57606a">TodoRequest / TodoResponse</text>
+    <text x="235" y="615" text-anchor="middle" font-size="10.5" fill="#57606a">Bean Validation &#8212; @Valid</text>
+
+    <text x="565" y="582" text-anchor="middle" font-size="12" font-weight="700">GlobalExceptionHandler</text>
+    <text x="565" y="600" text-anchor="middle" font-size="10.5" fill="#57606a">Validation errors &#8594; 400</text>
+    <text x="565" y="615" text-anchor="middle" font-size="10.5" fill="#57606a">Not found &#8594; 404</text>
+
+    <text x="400" y="729" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">H2 Database</text>
+    <text x="400" y="747" text-anchor="middle" font-size="11" fill="#3f7a52">File-based persistence</text>
+  </g>
+</svg>
